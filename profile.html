@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;}
+    html,body{margin:0;padding:0;}
+    body{background:#0A0F1E;}
+    ::-webkit-scrollbar{width:7px;}
+    ::-webkit-scrollbar-track{background:#0A0F1E;}
+    ::-webkit-scrollbar-thumb{background:#1A2336;border-radius:4px;}
+    input:focus,select:focus,textarea:focus{border-color:#C9A84C!important;box-shadow:0 0 0 3px rgba(201,168,76,.1)!important;outline:none;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+  </style>
+</helmet>
+
+<div style="display:flex; flex-direction:column; height:100vh; background:#0A0F1E; font-family:Inter,sans-serif; color:#EDF1FB; overflow:hidden;">
+
+  <!-- ══ PROTOTYPE ROLE SWITCHER ══ -->
+  <div style="flex:none; height:38px; background:#060A14; border-bottom:1px solid #0F1628; display:flex; align-items:center; padding:0 18px; gap:10px;">
+    <span style="font-size:9px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:#2A3650; white-space:nowrap;">Preview role:</span>
+    <div style="display:flex; align-items:center; gap:5px;">
+      <sc-for list="{{ roleTabs }}" as="rt" hint-placeholder-count="5">
+        <button onClick="{{ rt.on }}" style="{{ rt.style }}" style-hover="{{ rt.hov }}">{{ rt.label }}</button>
+      </sc-for>
+    </div>
+    <span style="margin-left:auto; font-size:10px; color:#1E2A3E; font-style:italic;">Profile views by user role — DeLaw</span>
+  </div>
+
+  <!-- ══ APP FRAME ══ -->
+  <div style="flex:1; display:flex; overflow:hidden; min-height:0;">
+
+    <!-- ── SIDEBAR: FIRM ROLES ── -->
+    <sc-if value="{{ isFirmRole }}" hint-placeholder-val="{{ true }}">
+      <aside style="width:194px; flex:none; background:#0B1020; border-right:1px solid #131B2A; display:flex; flex-direction:column; overflow:hidden;">
+        <div style="padding:14px 13px 12px; border-bottom:1px solid #131B2A; flex:none; display:flex; align-items:center; gap:9px;">
+          <div style="width:28px; height:28px; border-radius:7px; background:linear-gradient(135deg,#D4B25E,#C9A84C); display:flex; align-items:center; justify-content:center; flex:none;">
+            <span style="font-family:'Source Serif 4',serif; font-weight:700; font-size:13px; color:#0A0F1E;">D</span>
+          </div>
+          <div>
+            <div style="font-family:'Source Serif 4',serif; font-weight:700; font-size:13.5px; color:#F4F1E6;">DeLaw</div>
+            <div style="font-size:9px; color:#5C6678; margin-top:-1px;">Adeyemi Chambers</div>
+          </div>
+        </div>
+        <nav style="flex:1; overflow-y:auto; padding:8px 7px;">
+          <sc-for list="{{ sideNavItems }}" as="sn" hint-placeholder-count="10">
+            <button onClick="{{ sn.on }}" style="{{ sn.style }}" style-hover="{{ sn.hov }}">
+              <span style="{{ sn.icStyle }}">{{ sn.icEl }}</span>
+              <span style="font-size:12.5px; flex:1; text-align:left;">{{ sn.label }}</span>
+              <sc-if value="{{ sn.hasBadge }}" hint-placeholder-val="{{ false }}">
+                <span style="{{ sn.badgeStyle }}">{{ sn.badge }}</span>
+              </sc-if>
+            </button>
+          </sc-for>
+        </nav>
+        <div style="padding:11px 12px; border-top:1px solid #131B2A; flex:none; display:flex; align-items:center; gap:9px;">
+          <div style="{{ sideAvaStyle }}">{{ sideInitials }}</div>
+          <div style="min-width:0;">
+            <div style="font-size:12px; font-weight:600; color:#EDF1FB; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ sideName }}</div>
+            <div style="font-size:10px; color:#5C6678;">{{ sideRole }}</div>
+          </div>
+        </div>
+      </aside>
+    </sc-if>
+
+    <!-- ── SIDEBAR: JUDGE ── -->
+    <sc-if value="{{ isJudge }}">
+      <aside style="width:208px; flex:none; background:#0C1121; border-right:1px solid #161E30; display:flex; flex-direction:column; overflow:hidden;">
+        <div style="padding:16px 15px 13px; border-bottom:1px solid #161E30; flex:none; display:flex; align-items:center; gap:10px;">
+          <div style="width:30px; height:30px; border-radius:50%; background:linear-gradient(135deg,#1E2D48,#162238); border:1.5px solid #2E4268; display:flex; align-items:center; justify-content:center; flex:none; font-size:15px;">⚖</div>
+          <div>
+            <div style="font-family:'Source Serif 4',serif; font-weight:700; font-size:13px; color:#E0E6F4;">DeLaw Judicial</div>
+            <div style="font-size:9px; color:#3A4A6A;">Federal High Court</div>
+          </div>
+        </div>
+        <nav style="flex:1; overflow-y:auto; padding:10px 7px;">
+          <sc-for list="{{ judgeNav }}" as="jn" hint-placeholder-count="7">
+            <button onClick="{{ jn.on }}" style="{{ jn.style }}" style-hover="{{ jn.hov }}">
+              <span style="{{ jn.icStyle }}">{{ jn.icEl }}</span>
+              <span style="font-size:13px; flex:1; text-align:left;">{{ jn.label }}</span>
+            </button>
+          </sc-for>
+        </nav>
+        <div style="padding:13px; border-top:1px solid #161E30; flex:none; display:flex; align-items:center; gap:9px;">
+          <div style="width:32px; height:32px; border-radius:50%; background:linear-gradient(140deg,#1E2E4A,#162438); border:1.5px solid #9BB8E8; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:#9BB8E8; flex:none;">AO</div>
+          <div style="min-width:0;">
+            <div style="font-size:11.5px; font-weight:600; color:#D8E0F0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Hon. J. Adaeze Obi</div>
+            <div style="font-size:9.5px; color:#3A4A6A;">Presiding Judge</div>
+          </div>
+        </div>
+      </aside>
+    </sc-if>
+
+    <!-- ── SIDEBAR: CLIENT ── -->
+    <sc-if value="{{ isClient }}">
+      <aside style="width:178px; flex:none; background:#0A0F1E; border-right:1px solid #131B2A; display:flex; flex-direction:column; overflow:hidden;">
+        <div style="padding:18px 14px 14px; border-bottom:1px solid #131B2A; flex:none;">
+          <div style="font-family:'Source Serif 4',serif; font-weight:700; font-size:16px; color:#C9A84C; letter-spacing:.01em;">DeLaw</div>
+          <div style="font-size:10px; color:#5C6678; margin-top:2px;">Client Portal</div>
+        </div>
+        <nav style="flex:1; padding:8px 7px;">
+          <sc-for list="{{ clientNav }}" as="cn" hint-placeholder-count="5">
+            <button onClick="{{ cn.on }}" style="{{ cn.style }}" style-hover="{{ cn.hov }}">
+              <span style="{{ cn.icStyle }}">{{ cn.icEl }}</span>
+              <span style="font-size:13px; flex:1; text-align:left;">{{ cn.label }}</span>
+            </button>
+          </sc-for>
+        </nav>
+        <div style="padding:13px 14px; border-top:1px solid #131B2A; flex:none;">
+          <div style="font-size:12px; font-weight:600; color:#EDF1FB;">Chief E. I. Okafor</div>
+          <div style="font-size:10px; color:#5C6678; margin-top:2px;">Client since Jan 2025</div>
+        </div>
+      </aside>
+    </sc-if>
+
+    <!-- ══ MAIN AREA ══ -->
+    <div style="flex:1; display:flex; flex-direction:column; min-width:0; overflow:hidden;">
+
+      <!-- Top header (not for client) -->
+      <sc-if value="{{ notClient }}">
+        <header style="flex:none; height:50px; background:#0B1020; border-bottom:1px solid #131B2A; display:flex; align-items:center; padding:0 22px; gap:10px;">
+          <div style="display:flex; align-items:center; gap:5px; font-size:12px;">
+            <span style="color:#33415C;">Adeyemi Chambers</span>
+            <span style="color:#1E2A3E;">/</span>
+            <span style="color:#EDF1FB; font-weight:500;">{{ headerTitle }}</span>
+          </div>
+          <div style="margin-left:auto; display:flex; align-items:center; gap:8px;">
+            <button onClick="{{ doToast2 }}" style="width:30px; height:30px; border:1px solid #1A2336; border-radius:7px; background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#5C6678;" style-hover="border-color:#33415C; color:#EDF1FB;">{{ searchIco }}</button>
+            <button onClick="{{ doToast2 }}" style="width:30px; height:30px; border:1px solid #1A2336; border-radius:7px; background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#5C6678; position:relative;" style-hover="border-color:#33415C; color:#EDF1FB;">{{ bellIco }}<span style="position:absolute; top:6px; right:6px; width:5px; height:5px; border-radius:50%; background:#C9A84C; border:1.5px solid #0B1020;"></span></button>
+            <div style="display:flex; align-items:center; gap:7px; padding:0 8px 0 4px; height:30px; background:#131B2A; border:1px solid #1A2336; border-radius:7px; cursor:pointer;" style-hover="border-color:#33415C;">
+              <div style="{{ hdrAvaStyle }}">{{ hdrInitials }}</div>
+              <span style="font-size:12px; font-weight:600; color:#EDF1FB;">{{ hdrName }}</span>
+            </div>
+          </div>
+        </header>
+      </sc-if>
+
+      <!-- Scrollable content -->
+      <div style="flex:1; overflow-y:auto; min-height:0;">
+
+        <!-- ════════════════════════════════════════════ -->
+        <!--  47. PARTNER / ADMIN PROFILE                -->
+        <!-- ════════════════════════════════════════════ -->
+        <sc-if value="{{ isPartner }}">
+          <div style="padding:26px 30px 64px; animation:fadeIn 220ms ease;">
+
+            <!-- Hero card -->
+            <div style="background:#101728; border:1px solid #1A2336; border-radius:16px; padding:22px 26px; margin-bottom:18px; display:flex; align-items:center; justify-content:space-between; gap:20px;">
+              <div style="display:flex; align-items:center; gap:18px;">
+                <div style="position:relative; flex:none;">
+                  <div style="width:78px; height:78px; border-radius:50%; background:linear-gradient(140deg,#2b3650,#1a2233); border:2.5px solid #C9A84C; display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:700; color:#C9A84C; font-family:'JetBrains Mono',monospace;">BF</div>
+                  <div style="position:absolute; bottom:1px; right:1px; width:20px; height:20px; border-radius:50%; background:#10B981; border:2px solid #101728; display:flex; align-items:center; justify-content:center; font-size:10px; color:#fff; font-weight:700;">✓</div>
+                </div>
+                <div>
+                  <div style="display:flex; align-items:center; gap:9px; flex-wrap:wrap;">
+                    <h1 style="margin:0; font-family:'Source Serif 4',serif; font-weight:600; font-size:21px; color:#F4F1E6;">Babatunde Adewale Fashola</h1>
+                    <span style="font-size:10px; font-weight:700; letter-spacing:.06em; color:#C9A84C; background:rgba(201,168,76,.1); border:1px solid rgba(201,168,76,.25); padding:3px 9px; border-radius:6px;">SAN</span>
+                    <span style="font-size:10px; font-weight:700; letter-spacing:.05em; color:#A78BFA; background:rgba(167,139,250,.08); border:1px solid rgba(167,139,250,.2); padding:3px 9px; border-radius:6px;">ADMIN</span>
+                  </div>
+                  <div style="font-size:13px; color:#8B95A8; margin-top:4px;">Managing Partner · Senior Advocate of Nigeria</div>
+                  <div style="display:flex; align-items:center; gap:14px; margin-top:8px; flex-wrap:wrap; font-size:11.5px; color:#5C6678;">
+                    <span>{{ bfIco }} Adeyemi Chambers, Lagos</span>
+                    <span>{{ scIco }} NBA-2004-018372 · Lagos Branch</span>
+                    <span>{{ ckIco }} Partner 2012 · SAN 2018</span>
+                  </div>
+                </div>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:8px; flex:none;">
+                <button onClick="{{ doEdit }}" style="height:34px; padding:0 14px; border:1px solid #243049; border-radius:9px; background:transparent; color:#C7D0E0; font-family:Inter; font-size:12.5px; cursor:pointer; display:flex; align-items:center; gap:7px;" style-hover="border-color:#C9A84C; color:#C9A84C;">{{ editIco }} Edit Profile</button>
+                <button onClick="{{ doFirmRpt }}" style="height:34px; padding:0 14px; border:none; border-radius:9px; background:linear-gradient(135deg,#D4B25E,#C9A84C); color:#1a1404; font-family:Inter; font-size:12.5px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:7px;">{{ chIco }} Firm Reports</button>
+              </div>
+            </div>
+
+            <!-- KPI Row -->
+            <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:13px; margin-bottom:18px;">
+              <sc-for list="{{ partnerKpis }}" as="pk" hint-placeholder-count="4">
+                <div style="background:#101728; border:1px solid #1A2336; border-radius:13px; padding:17px 19px;" style-hover="background:#111929; border-color:#232E44;">
+                  <div style="font-size:10.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:#5C6678; margin-bottom:9px;">{{ pk.label }}</div>
+                  <div style="font-family:'Source Serif 4',serif; font-size:27px; font-weight:600; color:#F4F1E6; letter-spacing:-.01em; margin-bottom:5px;">{{ pk.value }}</div>
+                  <div style="{{ pk.cStyle }}">{{ pk.change }}</div>
+                  <div style="font-size:10.5px; color:#5C6678; margin-top:2px;">{{ pk.sub }}</div>
+                </div>
+              </sc-for>
+            </div>
+
+            <!-- Two-column grid -->
+            <div style="display:grid; grid-template-columns:1.15fr 1fr; gap:15px; margin-bottom:18px;">
+
+              <!-- Left col -->
+              <div style="display:flex; flex-direction:column; gap:13px;">
+
+                <!-- Practice area pipeline -->
+                <div style="background:#101728; border:1px solid #1A2336; border-radius:13px; padding:18px 20px;">
+                  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+                    <div style="font-size:12.5px; font-weight:600; color:#EDF1FB;">Active Matters by Practice Area</div>
+                    <span style="font-size:11px; color:#5C6678; font-family:'JetBrains Mono',monospace;">23 total</span>
+                  </div>
+                  <div style="display:flex; flex-direction:column; gap:10px;">
+                    <sc-for list="{{ pipelineAreas }}" as="pa" hint-placeholder-count="5">
+                      <div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                          <span style="font-size:12.5px; color:#C7D0E0;">{{ pa.area }}</span>
+                          <span style="font-size:12px; font-family:'JetBrains Mono',monospace; color:#8B95A8;">{{ pa.count }}</span>
+                        </div>
+                        <div style="height:6px; background:#1A2336; border-radius:10px; overflow:hidden;"><div style="{{ pa.barStyle }}"></div></div>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+
+                <!-- Team performance -->
+                <div style="background:#101728; border:1px solid #1A2336; border-radius:13px; overflow:hidden;">
+                  <div style="padding:14px 18px; border-bottom:1px solid #1A2336; display:flex; align-items:center; justify-content:space-between;">
+                    <div style="font-size:12.5px; font-weight:600; color:#EDF1FB;">Team Performance</div>
+                    <span style="font-size:11px; color:#5C6678;">This month</span>
+                  </div>
+                  <div style="display:grid; grid-template-columns:2.2fr 0.8fr 1fr 1fr; padding:7px 16px; font-size:9.5px; text-transform:uppercase; letter-spacing:.07em; color:#5C6678; font-weight:700; border-bottom:1px solid #1A2336;">
+                    <span>Member</span><span style="text-align:right;">Mat.</span><span style="text-align:right;">Hours</span><span style="text-align:right;">Eff.</span>
+                  </div>
+                  <sc-for list="{{ teamRows }}" as="tr2" hint-placeholder-count="5">
+                    <div style="display:grid; grid-template-columns:2.2fr 0.8fr 1fr 1fr; align-items:center; padding:10px 16px; border-top:1px solid #1A2336;" style-hover="background:#131c2e;">
+                      <div style="display:flex; align-items:center; gap:8px;">
+                        <div style="{{ tr2.ava }}">{{ tr2.initials }}</div>
+                        <div><div style="font-size:12px; font-weight:600; color:#EDF1FB;">{{ tr2.name }}</div><div style="font-size:10px; color:#5C6678;">{{ tr2.role }}</div></div>
+                      </div>
+                      <span style="text-align:right; font-size:12px; font-weight:600; color:#EDF1FB; font-family:'JetBrains Mono',monospace;">{{ tr2.matters }}</span>
+                      <span style="text-align:right; font-size:12px; color:#8B95A8; font-family:'JetBrains Mono',monospace;">{{ tr2.hours }}</span>
+                      <span style="{{ tr2.effStyle }}; text-align:right; font-size:12px; font-weight:600; font-family:'JetBrains Mono',monospace;">{{ tr2.eff }}%</span>
+                    </div>
+                  </sc-for>
+                </div>
+
+              </div><!-- /left col -->
+
+              <!-- Right col: Activity feed -->
+              <div style="background:#101728; border:1px solid #1A2336; border-radius:13px; display:flex; flex-direction:column; overflow:hidden;">
+                <div style="padding:14px 18px; border-bottom:1px solid #1A2336; display:flex; align-items:center; justify-content:space-between; flex:none;">
+                  <div style="font-size:12.5px; font-weight:600; color:#EDF1FB;">Firm Activity</div>
+                  <div style="display:flex; align-items:center; gap:5px;"><div style="width:6px; height:6px; border-radius:50%; background:#10B981;"></div><span style="font-size:10.5px; color:#10B981; font-weight:600;">Live</span></div>
+                </div>
+                <div style="flex:1; overflow-y:auto;">
+                  <sc-for list="{{ actFeed }}" as="af" hint-placeholder-count="6">
+                    <div style="padding:12px 18px; border-top:1px solid #1A2336; display:flex; gap:10px;" style-hover="background:#131c2e;">
+                      <div style="{{ af.dotStyle }}">{{ af.dotIco }}</div>
+                      <div style="flex:1; min-width:0;">
+                        <div style="font-size:12.5px; color:#EDF1FB; line-height:1.45;"><span style="font-weight:600;">{{ af.actor }}</span> {{ af.action }}</div>
+                        <div style="font-size:11px; color:#5C6678; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ af.matter }}</div>
+                        <div style="font-size:10px; color:#2A3650; margin-top:2px;">{{ af.time }}</div>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+
+            </div><!-- /two-col -->
+
+            <!-- Firm-wide stats -->
+            <div style="background:linear-gradient(150deg,rgba(201,168,76,.06),rgba(201,168,76,0) 60%),#101728; border:1px solid rgba(201,168,76,.18); border-radius:13px; padding:18px 22px;">
+              <div style="font-size:9.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#C9A84C; margin-bottom:14px;">Firm-wide — June 2026</div>
+              <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:14px;">
+                <sc-for list="{{ firmStats }}" as="fs" hint-placeholder-count="4">
+                  <div style="display:flex; align-items:center; gap:12px;">
+                    <div style="{{ fs.iconBg }}">{{ fs.icEl }}</div>
+                    <div>
+                      <div style="font-family:'JetBrains Mono',monospace; font-size:22px; font-weight:600; color:#F4F1E6;">{{ fs.value }}</div>
+                      <div style="font-size:11.5px; color:#8B95A8; margin-top:1px;">{{ fs.label }}</div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+          </div>
+        </sc-if>
+
+        <!-- ════════════════════════════════════════════ -->
+        <!--  48. ASSOCIATE / LAWYER PROFILE             -->
+        <!-- ════════════════════════════════════════════ -->
+        <sc-if value="{{ isAssociate }}">
+          <div style="padding:26px 30px 64px; animation:fadeIn 220ms ease;">
+
+            <!-- Hero -->
+            <div style="background:#101728; border:1px solid #1A2336; border-radius:16px; padding:22px 26px; margin-bottom:18px; display:flex; align-items:center; justify-content:space-between; gap:20px;">
+              <div style="display:flex; align-items:center; gap:18px;">
+                <div style="width:70px; height:70px; border-radius:50%; background:linear-gradient(140deg,#1E3050,#172440); border:2px solid #3B82F6; display:flex; align-items:center; justify-content:center; font-size:21px; font-weight:700; color:#3B82F6; font-family:'JetBrains Mono',monospace; flex:none;">NO</div>
+                <div>
+                  <div style="display:flex; align-items:center; gap:9px; flex-wrap:wrap;">
+                    <h1 style="margin:0; font-family:'Source Serif 4',serif; font-weight:600; font-size:20px; color:#F4F1E6;">Ngozi Adaeze Okonkwo</h1>
+                    <span style="font-size:10px; font-weight:700; color:#3B82F6; background:rgba(59,130,246,.1); border:1px solid rgba(59,130,246,.25); padding:3px 9px; border-radius:6px;">Senior Associate</span>
+                  </div>
+                  <div style="font-size:13px; color:#8B95A8; margin-top:4px;">Commercial Litigation &amp; Arbitration</div>
+                  <div style="display:flex; align-items:center; gap:12px; margin-top:8px; font-size:11.5px; color:#5C6678; flex-wrap:wrap;">
+                    <span>NBA-2015-044231 · Lagos</span>
+                    <span>Joined March 2020</span>
+                    <span style="color:#10B981;">● Available</span>
+                  </div>
+                </div>
+              </div>
+              <button onClick="{{ doEdit }}" style="height:34px; padding:0 14px; border:1px solid #243049; border-radius:9px; background:transparent; color:#C7D0E0; font-family:Inter; font-size:12.5px; cursor:pointer; display:flex; align-items:center; gap:7px; flex:none;" style-hover="border-color:#33415C;">{{ editIco }} Edit</button>
+            </div>
+
+            <!-- KPI row -->
+            <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:13px; margin-bottom:18px;">
+              <sc-for list="{{ assocKpis }}" as="ak" hint-placeholder-count="4">
+                <div style="{{ ak.cardStyle }}" style-hover="filter:brightness(1.05);">
+                  <div style="font-size:10.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:#5C6678; margin-bottom:9px;">{{ ak.label }}</div>
+                  <div style="{{ ak.valStyle }}">{{ ak.value }}</div>
+                  <div style="{{ ak.subStyle }}">{{ ak.sub }}</div>
+                </div>
+              </sc-for>
+            </div>
+
+            <!-- Two-column: tasks + research -->
+            <div style="display:grid; grid-template-columns:1.3fr 1fr; gap:15px;">
+
+              <!-- My tasks -->
+              <div style="background:#101728; border:1px solid #1A2336; border-radius:13px; overflow:hidden;">
+                <div style="padding:14px 18px; border-bottom:1px solid #1A2336; display:flex; align-items:center; justify-content:space-between;">
+                  <div style="font-size:12.5px; font-weight:600; color:#EDF1FB;">My Tasks</div>
+                  <span style="font-size:11px; color:#EF4444; font-weight:600; background:rgba(239,68,68,.08); border:1px solid rgba(239,68,68,.25); padding:2px 8px; border-radius:6px;">3 overdue</span>
+                </div>
+                <sc-for list="{{ assocTasks }}" as="at" hint-placeholder-count="7">
+                  <div style="padding:11px 18px; border-top:1px solid #1A2336; display:flex; align-items:flex-start; gap:10px;" style-hover="background:#131c2e;">
+                    <div style="width:16px; height:16px; border:1.5px solid #243049; border-radius:4px; display:flex; align-items:center; justify-content:center; flex:none; margin-top:2px; cursor:pointer;" style-hover="border-color:#C9A84C;"></div>
+                    <div style="flex:1; min-width:0;">
+                      <div style="font-size:12.5px; font-weight:500; color:#EDF1FB; margin-bottom:2px; line-height:1.4;">{{ at.task }}</div>
+                      <div style="font-size:11px; color:#5C6678; margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ at.matter }}</div>
+                      <div style="display:flex; align-items:center; gap:7px; flex-wrap:wrap;">
+                        <span style="{{ at.prioStyle }}">{{ at.priority }}</span>
+                        <span style="{{ at.dueStyle }}">Due {{ at.due }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+
+              <!-- Research history -->
+              <div style="background:#101728; border:1px solid #1A2336; border-radius:13px; overflow:hidden; display:flex; flex-direction:column;">
+                <div style="padding:14px 18px; border-bottom:1px solid #1A2336; flex:none;">
+                  <div style="font-size:12.5px; font-weight:600; color:#EDF1FB;">Research History</div>
+                </div>
+                <div style="flex:1; overflow-y:auto;">
+                  <sc-for list="{{ assocResearch }}" as="ar" hint-placeholder-count="5">
+                    <div style="padding:12px 18px; border-top:1px solid #1A2336; cursor:pointer;" style-hover="background:#131c2e;">
+                      <div style="font-size:12.5px; font-weight:500; color:#EDF1FB; margin-bottom:5px; line-height:1.4;">{{ ar.query }}</div>
+                      <div style="display:flex; align-items:center; gap:7px; flex-wrap:wrap;">
+                        <span style="font-size:10px; color:#C9A84C; background:rgba(201,168,76,.08); border:1px solid rgba(201,168,76,.2); padding:1px 7px; border-radius:5px;">{{ ar.juris }}</span>
+                        <span style="font-size:10.5px; color:#5C6678;">{{ ar.source }}</span>
+                        <span style="font-size:10px; color:#2A3650; margin-left:auto;">{{ ar.date }}</span>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+                <div style="padding:11px 18px; border-top:1px solid #1A2336; flex:none;">
+                  <button onClick="{{ doSearch }}" style="width:100%; height:32px; border:1.5px dashed #243049; border-radius:8px; background:transparent; color:#5C6678; font-family:Inter; font-size:12px; cursor:pointer;" style-hover="border-color:#C9A84C; color:#C9A84C;">+ New Research Query</button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- ════════════════════════════════════════════ -->
+        <!--  49. PARALEGAL PROFILE                      -->
+        <!-- ════════════════════════════════════════════ -->
+        <sc-if value="{{ isParalegal }}">
+          <div style="padding:26px 30px 64px; animation:fadeIn 220ms ease;">
+
+            <!-- Hero -->
+            <div style="background:#101728; border:1px solid #1A2336; border-radius:16px; padding:22px 26px; margin-bottom:18px; display:flex; align-items:center; justify-content:space-between; gap:20px;">
+              <div style="display:flex; align-items:center; gap:18px;">
+                <div style="width:66px; height:66px; border-radius:50%; background:linear-gradient(140deg,#1E2840,#16203A); border:2px solid #F59E0B; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:700; color:#F59E0B; font-family:'JetBrains Mono',monospace; flex:none;">CN</div>
+                <div>
+                  <h1 style="margin:0; font-family:'Source Serif 4',serif; font-weight:600; font-size:20px; color:#F4F1E6;">Chidi Emmanuel Nwosu</h1>
+                  <div style="font-size:13px; color:#8B95A8; margin-top:4px;">Paralegal · Document Management &amp; Filing</div>
+                  <div style="display:flex; align-items:center; gap:12px; margin-top:8px; font-size:11.5px; color:#5C6678;">
+                    <span>Joined March 2024</span>
+                    <span style="font-size:10px; font-weight:700; color:#F59E0B; background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2); padding:2px 8px; border-radius:6px;">Paralegal</span>
+                  </div>
+                </div>
+              </div>
+              <button onClick="{{ doEdit }}" style="height:32px; padding:0 13px; border:1px solid #243049; border-radius:9px; background:transparent; color:#C7D0E0; font-family:Inter; font-size:12.5px; cursor:pointer; flex:none;" style-hover="border-color:#33415C;">Edit Profile</button>
+            </div>
+
+            <!-- KPI row (3) -->
+            <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:13px; margin-bottom:18px;">
+              <sc-for list="{{ paraKpis }}" as="pk2" hint-placeholder-count="3">
+                <div style="background:#101728; border:1px solid #1A2336; border-radius:13px; padding:19px 21px;" style-hover="background:#111929;">
+                  <div style="font-size:10.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:#5C6678; margin-bottom:9px;">{{ pk2.label }}</div>
+                  <div style="font-family:'Source Serif 4',serif; font-size:30px; font-weight:600; color:#F4F1E6; margin-bottom:3px;">{{ pk2.value }}</div>
+                  <div style="font-size:11px; color:#5C6678;">{{ pk2.sub }}</div>
+                </div>
+              </sc-for>
+            </div>
+
+            <!-- Two-col: matters + time log -->
+            <div style="display:grid; grid-template-columns:1.25fr 1fr; gap:14px; margin-bottom:14px;">
+
+              <div style="background:#101728; border:1px solid #1A2336; border-radius:13px; overflow:hidden;">
+                <div style="padding:14px 18px; border-bottom:1px solid #1A2336; display:flex; align-items:center; justify-content:space-between;">
+                  <div style="font-size:12.5px; font-weight:600; color:#EDF1FB;">My Assigned Matters</div>
+                  <span style="font-size:10px; font-family:'JetBrains Mono',monospace; color:#5C6678; background:#141B2E; border:1px solid #1A2336; padding:2px 8px; border-radius:6px;">3 active</span>
+                </div>
+                <sc-for list="{{ paraMatters }}" as="pm" hint-placeholder-count="3">
+                  <div style="padding:13px 18px; border-top:1px solid #1A2336;" style-hover="background:#131c2e;">
+                    <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:7px;">
+                      <div>
+                        <div style="font-size:12.5px; font-weight:600; color:#EDF1FB; margin-bottom:2px;">{{ pm.title }}</div>
+                        <div style="font-size:10.5px; color:#5C6678; font-family:'JetBrains Mono',monospace;">{{ pm.ref }} · {{ pm.type }}</div>
+                      </div>
+                      <span style="font-size:9.5px; font-weight:700; color:#10B981; background:rgba(16,185,129,.1); border:1px solid rgba(16,185,129,.25); padding:2px 8px; border-radius:6px; white-space:nowrap; flex:none;">{{ pm.status }}</span>
+                    </div>
+                    <div style="display:flex; gap:14px; font-size:11px; color:#8B95A8;">
+                      <span>{{ pm.tasks }} tasks</span><span>{{ pm.docs }} documents</span>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+
+              <div style="background:#101728; border:1px solid #1A2336; border-radius:13px; overflow:hidden; display:flex; flex-direction:column;">
+                <div style="padding:14px 18px; border-bottom:1px solid #1A2336; display:flex; align-items:center; justify-content:space-between; flex:none;">
+                  <div style="font-size:12.5px; font-weight:600; color:#EDF1FB;">Recent Time Entries</div>
+                  <button onClick="{{ logTime }}" style="height:26px; padding:0 10px; border:none; border-radius:7px; background:linear-gradient(135deg,#D4B25E,#C9A84C); color:#1a1404; font-family:Inter; font-size:11px; font-weight:700; cursor:pointer;">+ Log time</button>
+                </div>
+                <sc-for list="{{ paraTimeLog }}" as="tl" hint-placeholder-count="5">
+                  <div style="padding:10px 18px; border-top:1px solid #1A2336;" style-hover="background:#131c2e;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:3px;">
+                      <span style="font-family:'JetBrains Mono',monospace; font-size:12px; color:#C9A84C; font-weight:600;">{{ tl.hrs }}h</span>
+                      <span style="font-size:10.5px; color:#5C6678;">{{ tl.date }}</span>
+                    </div>
+                    <div style="font-size:12px; color:#C7D0E0; margin-bottom:2px; line-height:1.4;">{{ tl.desc }}</div>
+                    <div style="font-size:10.5px; color:#5C6678;">{{ tl.matter }}</div>
+                  </div>
+                </sc-for>
+              </div>
+
+            </div>
+
+            <!-- AI Access Locked -->
+            <div style="background:#0E1524; border:1.5px dashed #243049; border-radius:14px; padding:30px 24px; display:flex; flex-direction:column; align-items:center; text-align:center;">
+              <div style="width:52px; height:52px; border-radius:50%; background:#141B2E; border:1.5px solid #243049; display:flex; align-items:center; justify-content:center; color:#33415C; margin-bottom:13px;">{{ lockIco }}</div>
+              <div style="font-size:14px; font-weight:600; color:#EDF1FB; margin-bottom:6px;">AI Research Access Restricted</div>
+              <div style="font-size:12.5px; color:#8B95A8; max-width:420px; line-height:1.65; margin-bottom:18px;">AI-powered legal research and document analysis requires admin approval. Your current role does not include AI credit access by default.</div>
+              <div style="display:flex; gap:10px;">
+                <button onClick="{{ reqAI }}" style="height:38px; padding:0 18px; border:none; border-radius:10px; background:linear-gradient(135deg,#D4B25E,#C9A84C); color:#1a1404; font-family:Inter; font-size:13px; font-weight:700; cursor:pointer;">Request Access from Admin</button>
+                <button onClick="{{ doSearch }}" style="height:38px; padding:0 16px; border:1px solid #243049; border-radius:10px; background:transparent; color:#8B95A8; font-family:Inter; font-size:13px; cursor:pointer;" style-hover="border-color:#33415C; color:#EDF1FB;">Learn more</button>
+              </div>
+            </div>
+
+          </div>
+        </sc-if>
+
+        <!-- ════════════════════════════════════════════ -->
+        <!--  50. JUDGE / JUDICIARY PROFILE  (Phase 2)   -->
+        <!-- ════════════════════════════════════════════ -->
+        <sc-if value="{{ isJudge }}">
+          <div style="padding:28px 36px 64px; animation:fadeIn 220ms ease;">
+
+            <!-- Phase 2 tag -->
+            <div style="display:inline-flex; align-items:center; gap:6px; background:rgba(167,139,250,.08); border:1px solid rgba(167,139,250,.2); border-radius:8px; padding:4px 12px; margin-bottom:18px;">
+              <span style="font-size:9px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#A78BFA;">Phase 2 Feature — Designed now</span>
+            </div>
+
+            <!-- Judge hero -->
+            <div style="background:#101728; border:1px solid #1A2336; border-radius:16px; padding:24px 28px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; gap:20px;">
+              <div style="display:flex; align-items:center; gap:20px;">
+                <div style="width:76px; height:76px; border-radius:50%; background:linear-gradient(140deg,#1E2E4A,#162438); border:2px solid #9BB8E8; display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:700; color:#9BB8E8; font-family:'JetBrains Mono',monospace; flex:none;">AO</div>
+                <div>
+                  <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                    <h1 style="margin:0; font-family:'Source Serif 4',serif; font-weight:600; font-size:20px; color:#F4F1E6;">Hon. Justice Adaeze Chidinma Obi</h1>
+                    <span style="font-size:9.5px; font-weight:700; letter-spacing:.05em; color:#9BB8E8; background:rgba(155,184,232,.08); border:1px solid rgba(155,184,232,.2); padding:3px 9px; border-radius:6px;">FEDERAL HIGH COURT</span>
+                  </div>
+                  <div style="font-size:13px; color:#8B95A8; margin-top:4px;">Presiding Judge, Commercial &amp; Intellectual Property Division — Lagos</div>
+                  <div style="display:flex; align-items:center; gap:14px; margin-top:8px; font-size:11.5px; color:#5C6678; flex-wrap:wrap;">
+                    <span>Appointed 14 March 2019</span>
+                    <span>LL.B (UNILAG) · LL.M (Cambridge) · PhD (SOAS)</span>
+                    <span>Michaelmas Term 2026</span>
+                  </div>
+                </div>
+              </div>
+              <div style="text-align:right; flex:none;">
+                <div style="font-size:10.5px; font-weight:600; color:#5C6678; margin-bottom:3px;">Current sitting</div>
+                <div style="font-size:13px; font-weight:600; color:#EDF1FB;">Commercial &amp; IP</div>
+                <div style="font-size:11px; color:#5C6678;">Jan 2026 — Jul 2026</div>
+              </div>
+            </div>
+
+            <!-- Case stat KPIs -->
+            <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:13px; margin-bottom:20px;">
+              <sc-for list="{{ judgeStats }}" as="js" hint-placeholder-count="4">
+                <div style="background:#101728; border:1px solid #1A2336; border-radius:13px; padding:19px 21px;" style-hover="background:#111929;">
+                  <div style="font-size:10.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:#5C6678; margin-bottom:9px;">{{ js.label }}</div>
+                  <div style="{{ js.valStyle }}">{{ js.value }}</div>
+                </div>
+              </sc-for>
+            </div>
+
+            <!-- Backlog + drafts | diary -->
+            <div style="display:grid; grid-template-columns:1fr 1.1fr; gap:15px;">
+
+              <div style="display:flex; flex-direction:column; gap:13px;">
+
+                <!-- Backlog tracker -->
+                <div style="background:#101728; border:1px solid #1A2336; border-radius:13px; padding:20px 22px;">
+                  <div style="font-size:12.5px; font-weight:600; color:#EDF1FB; margin-bottom:3px;">Case Backlog Tracker</div>
+                  <div style="font-size:11.5px; color:#5C6678; margin-bottom:16px;">127 total cases — by age on docket</div>
+                  <div style="display:flex; flex-direction:column; gap:12px;">
+                    <sc-for list="{{ backlog }}" as="bl" hint-placeholder-count="4">
+                      <div>
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:5px;">
+                          <div style="display:flex; align-items:center; gap:7px;">
+                            <div style="{{ bl.dotStyle }}"></div>
+                            <span style="font-size:12.5px; color:#C7D0E0;">{{ bl.label }}</span>
+                          </div>
+                          <span style="font-size:12px; font-family:'JetBrains Mono',monospace; font-weight:600; color:#EDF1FB;">{{ bl.count }}</span>
+                        </div>
+                        <div style="height:7px; background:#1A2336; border-radius:10px; overflow:hidden;"><div style="{{ bl.barStyle }}"></div></div>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+
+                <!-- Draft judgments -->
+                <div style="background:#101728; border:1px solid #1A2336; border-radius:13px; overflow:hidden;">
+                  <div style="padding:14px 18px; border-bottom:1px solid #1A2336; display:flex; align-items:center; justify-content:space-between;">
+                    <div style="font-size:12.5px; font-weight:600; color:#EDF1FB;">Draft Judgments</div>
+                    <button onClick="{{ newDraft }}" style="height:26px; padding:0 10px; border:1px solid rgba(155,184,232,.2); border-radius:7px; background:rgba(155,184,232,.06); color:#9BB8E8; font-family:Inter; font-size:11px; font-weight:600; cursor:pointer;" style-hover="background:rgba(155,184,232,.12);">+ New draft</button>
+                  </div>
+                  <sc-for list="{{ jDrafts }}" as="jd" hint-placeholder-count="3">
+                    <div style="padding:13px 18px; border-top:1px solid #1A2336; cursor:pointer;" style-hover="background:#131c2e;">
+                      <div style="display:flex; justify-content:space-between; gap:10px; margin-bottom:4px;">
+                        <div style="font-size:12.5px; font-weight:500; color:#EDF1FB; line-height:1.4;">{{ jd.title }}</div>
+                        <span style="font-size:11px; color:#9BB8E8; font-family:'JetBrains Mono',monospace; font-weight:600; flex:none;">{{ jd.pct }}%</span>
+                      </div>
+                      <div style="font-size:10px; color:#5C6678; font-family:'JetBrains Mono',monospace; margin-bottom:7px;">{{ jd.caseNo }}</div>
+                      <div style="height:4px; background:#1A2336; border-radius:10px; overflow:hidden;"><div style="{{ jd.barStyle }}"></div></div>
+                    </div>
+                  </sc-for>
+
+                  <!-- AI judgment assistant preview -->
+                  <div style="margin:13px 18px 16px; background:rgba(155,184,232,.04); border:1px solid rgba(155,184,232,.13); border-radius:10px; padding:13px 15px;">
+                    <div style="display:flex; align-items:center; gap:7px; margin-bottom:7px;">
+                      <span style="color:#A78BFA; font-size:13px;">✦</span>
+                      <span style="font-size:12.5px; font-weight:600; color:#EDF1FB;">AI Judgment Assistant</span>
+                      <span style="font-size:9px; font-weight:700; letter-spacing:.06em; color:#A78BFA; background:rgba(167,139,250,.1); border:1px solid rgba(167,139,250,.2); padding:1px 7px; border-radius:5px;">PHASE 2</span>
+                    </div>
+                    <div style="font-size:12px; color:#8B95A8; line-height:1.55; margin-bottom:9px;">Surfaces relevant Nigerian &amp; Commonwealth case law as you draft, with real-time citation checking and WACA-format output.</div>
+                    <div style="display:flex; flex-wrap:wrap; gap:5px;">
+                      <span style="font-size:10px; color:#9BB8E8; background:rgba(155,184,232,.07); border:1px solid rgba(155,184,232,.14); padding:2px 8px; border-radius:5px;">SCOA precedents</span>
+                      <span style="font-size:10px; color:#9BB8E8; background:rgba(155,184,232,.07); border:1px solid rgba(155,184,232,.14); padding:2px 8px; border-radius:5px;">WACA citations</span>
+                      <span style="font-size:10px; color:#9BB8E8; background:rgba(155,184,232,.07); border:1px solid rgba(155,184,232,.14); padding:2px 8px; border-radius:5px;">LRC formatting</span>
+                      <span style="font-size:10px; color:#9BB8E8; background:rgba(155,184,232,.07); border:1px solid rgba(155,184,232,.14); padding:2px 8px; border-radius:5px;">Auto-citation check</span>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Court diary -->
+              <div style="background:#101728; border:1px solid #1A2336; border-radius:13px; overflow:hidden; display:flex; flex-direction:column;">
+                <div style="padding:15px 20px; border-bottom:1px solid #1A2336; flex:none;">
+                  <div style="font-size:12.5px; font-weight:600; color:#EDF1FB; margin-bottom:1px;">Court Diary</div>
+                  <div style="font-size:11px; color:#5C6678;">Week of 21 June 2026</div>
+                </div>
+                <div style="flex:1; overflow-y:auto;">
+                  <sc-for list="{{ diary }}" as="de" hint-placeholder-count="5">
+                    <div style="padding:14px 20px; border-top:1px solid #1A2336; display:flex; align-items:flex-start; gap:13px;" style-hover="background:#131c2e;">
+                      <div style="text-align:center; flex:none; width:34px;">
+                        <div style="font-size:18px; font-weight:700; color:#EDF1FB; line-height:1; font-family:'JetBrains Mono',monospace;">{{ de.dNum }}</div>
+                        <div style="font-size:9px; color:#5C6678; margin-top:1px; text-transform:uppercase; letter-spacing:.04em;">{{ de.dName }}</div>
+                      </div>
+                      <div style="flex:1; min-width:0;">
+                        <div style="display:flex; align-items:center; gap:7px; margin-bottom:4px;">
+                          <span style="font-size:10.5px; font-family:'JetBrains Mono',monospace; color:#8B95A8;">{{ de.time }}</span>
+                          <span style="{{ de.typePill }}">{{ de.type }}</span>
+                        </div>
+                        <div style="font-size:12.5px; font-weight:500; color:#EDF1FB; line-height:1.4;">{{ de.matter }}</div>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- ════════════════════════════════════════════ -->
+        <!--  51. CLIENT PORTAL PROFILE                  -->
+        <!-- ════════════════════════════════════════════ -->
+        <sc-if value="{{ isClient }}">
+          <div style="animation:fadeIn 220ms ease;">
+
+            <!-- Client portal top bar -->
+            <div style="background:#0B1020; border-bottom:1px solid #131B2A; padding:13px 26px; display:flex; align-items:center; justify-content:space-between;">
+              <div>
+                <div style="font-family:'Source Serif 4',serif; font-size:14px; font-weight:700; color:#C9A84C;">Adeyemi Chambers</div>
+                <div style="font-size:10px; color:#5C6678; margin-top:1px;">Client Portal</div>
+              </div>
+              <div style="display:flex; align-items:center; gap:9px;">
+                <div style="width:30px; height:30px; border-radius:50%; background:linear-gradient(140deg,#2b3650,#1a2233); border:1.5px solid #C9A84C; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:#C9A84C;">EO</div>
+                <div>
+                  <div style="font-size:12px; font-weight:600; color:#EDF1FB;">Chief E. I. Okafor</div>
+                  <div style="font-size:10px; color:#5C6678;">Client account</div>
+                </div>
+                <button onClick="{{ doLogout }}" style="height:28px; padding:0 11px; border:1px solid #1A2336; border-radius:7px; background:transparent; color:#5C6678; font-family:Inter; font-size:11.5px; cursor:pointer; margin-left:8px;" style-hover="color:#EDF1FB; border-color:#33415C;">Log out</button>
+              </div>
+            </div>
+
+            <div style="padding:26px 26px 64px; max-width:740px;">
+              <h2 style="margin:0 0 20px; font-family:'Source Serif 4',serif; font-weight:600; font-size:21px; color:#F4F1E6;">My Profile</h2>
+
+              <!-- Personal info -->
+              <div style="background:#101728; border:1px solid #1A2336; border-radius:14px; padding:20px 22px; margin-bottom:14px;">
+                <div style="font-size:12.5px; font-weight:600; color:#EDF1FB; margin-bottom:16px;">Personal Information</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
+                  <div>
+                    <label style="display:block; font-size:11.5px; font-weight:600; color:#8B95A8; margin-bottom:5px;">Full Name</label>
+                    <input value="Chief Emmanuel Ikechukwu Okafor" style="width:100%; height:42px; padding:0 12px; border:1px solid #243049; background:#0C1120; color:#EDF1FB; border-radius:10px; font-family:Inter; font-size:13px; outline:none; box-sizing:border-box;">
+                  </div>
+                  <div>
+                    <label style="display:block; font-size:11.5px; font-weight:600; color:#8B95A8; margin-bottom:5px;">Preferred Name</label>
+                    <input value="Chief Okafor" style="width:100%; height:42px; padding:0 12px; border:1px solid #C9A84C; background:#0C1120; color:#EDF1FB; border-radius:10px; font-family:Inter; font-size:13px; outline:none; box-sizing:border-box; box-shadow:0 0 0 3px rgba(201,168,76,.1);">
+                  </div>
+                </div>
+                <div style="margin-bottom:14px;">
+                  <label style="display:block; font-size:11.5px; font-weight:600; color:#8B95A8; margin-bottom:5px;">Email Address</label>
+                  <div style="position:relative;">
+                    <input value="e.okafor@okaforgroupng.com" style="width:100%; height:42px; padding:0 118px 0 12px; border:1px solid #243049; background:#0C1120; color:#EDF1FB; border-radius:10px; font-family:Inter; font-size:13px; outline:none; box-sizing:border-box;">
+                    <span style="position:absolute; right:10px; top:50%; transform:translateY(-50%); font-size:10px; font-weight:700; color:#10B981; background:rgba(16,185,129,.1); border:1px solid rgba(16,185,129,.3); padding:3px 8px; border-radius:6px;">Verified ✓</span>
+                  </div>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:18px;">
+                  <div>
+                    <label style="display:block; font-size:11.5px; font-weight:600; color:#8B95A8; margin-bottom:5px;">Phone Number</label>
+                    <input value="+234 801 234 5678" style="width:100%; height:42px; padding:0 12px; border:1px solid #243049; background:#0C1120; color:#EDF1FB; border-radius:10px; font-family:Inter; font-size:13px; outline:none; box-sizing:border-box;">
+                  </div>
+                  <div>
+                    <label style="display:block; font-size:11.5px; font-weight:600; color:#8B95A8; margin-bottom:5px;">WhatsApp</label>
+                    <input value="+234 801 234 5678" style="width:100%; height:42px; padding:0 12px; border:1px solid #243049; background:#0C1120; color:#EDF1FB; border-radius:10px; font-family:Inter; font-size:13px; outline:none; box-sizing:border-box;">
+                  </div>
+                </div>
+                <div style="display:flex; justify-content:flex-end; gap:9px;">
+                  <button onClick="{{ doSave }}" style="height:38px; padding:0 16px; border:1px solid #243049; border-radius:9px; background:transparent; color:#8B95A8; font-family:Inter; font-size:13px; cursor:pointer;" style-hover="color:#EDF1FB;">Discard</button>
+                  <button onClick="{{ doSave }}" style="height:38px; padding:0 18px; border:none; border-radius:9px; background:linear-gradient(135deg,#D4B25E,#C9A84C); color:#1a1404; font-family:Inter; font-size:13px; font-weight:700; cursor:pointer;">Save changes</button>
+                </div>
+              </div>
+
+              <!-- Active matters -->
+              <div style="background:#101728; border:1px solid #1A2336; border-radius:14px; overflow:hidden; margin-bottom:14px;">
+                <div style="padding:14px 20px; border-bottom:1px solid #1A2336;">
+                  <div style="font-size:12.5px; font-weight:600; color:#EDF1FB;">My Active Matters</div>
+                </div>
+                <sc-for list="{{ clientMatters }}" as="cm" hint-placeholder-count="2">
+                  <div style="padding:15px 20px; border-top:1px solid #1A2336;" style-hover="background:#131c2e;">
+                    <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:7px;">
+                      <div>
+                        <div style="font-size:13px; font-weight:600; color:#EDF1FB; line-height:1.4; margin-bottom:3px;">{{ cm.title }}</div>
+                        <div style="font-size:10.5px; color:#5C6678; font-family:'JetBrains Mono',monospace;">{{ cm.ref }} · {{ cm.type }}</div>
+                      </div>
+                      <span style="{{ cm.statusPill }}">{{ cm.status }}</span>
+                    </div>
+                    <div style="background:#0C1120; border-radius:8px; padding:9px 12px; margin-bottom:7px;">
+                      <div style="font-size:12px; color:#C7D0E0; line-height:1.55;">{{ cm.update }}</div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:14px; font-size:11.5px; color:#5C6678;">
+                      <span>Solicitor: <span style="color:#C9A84C; font-weight:600;">{{ cm.solicitor }}</span></span>
+                      <span>Next: {{ cm.nextHearing }}</span>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+
+              <!-- My documents -->
+              <div style="background:#101728; border:1px solid #1A2336; border-radius:14px; overflow:hidden; margin-bottom:14px;">
+                <div style="padding:14px 20px; border-bottom:1px solid #1A2336; display:flex; align-items:center; justify-content:space-between;">
+                  <div style="font-size:12.5px; font-weight:600; color:#EDF1FB;">My Documents</div>
+                  <span style="font-size:11px; color:#5C6678;">5 files</span>
+                </div>
+                <sc-for list="{{ clientDocs }}" as="cd" hint-placeholder-count="5">
+                  <div style="padding:11px 20px; border-top:1px solid #1A2336; display:flex; align-items:center; justify-content:space-between;" style-hover="background:#131c2e;">
+                    <div style="display:flex; align-items:center; gap:11px; min-width:0;">
+                      <div style="width:32px; height:32px; border-radius:8px; background:#141B2E; border:1px solid #243049; display:flex; align-items:center; justify-content:center; color:#C9A84C; flex:none;">{{ docIco }}</div>
+                      <div style="min-width:0;">
+                        <div style="font-size:12.5px; font-weight:500; color:#EDF1FB; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ cd.name }}</div>
+                        <div style="font-size:10.5px; color:#5C6678; margin-top:2px;">{{ cd.type }} · {{ cd.size }} · {{ cd.date }}</div>
+                      </div>
+                    </div>
+                    <button onClick="{{ doSave }}" style="height:26px; padding:0 10px; border:1px solid #243049; border-radius:7px; background:transparent; color:#8B95A8; font-family:Inter; font-size:11.5px; cursor:pointer; flex:none; margin-left:12px;" style-hover="border-color:#33415C; color:#EDF1FB;">Download</button>
+                  </div>
+                </sc-for>
+              </div>
+
+              <!-- Change password -->
+              <div style="background:#101728; border:1px solid #1A2336; border-radius:14px; padding:20px 22px; margin-bottom:14px;">
+                <div style="font-size:12.5px; font-weight:600; color:#EDF1FB; margin-bottom:16px;">Change Password</div>
+                <div style="display:flex; flex-direction:column; gap:13px;">
+                  <div>
+                    <label style="display:block; font-size:11.5px; font-weight:600; color:#8B95A8; margin-bottom:5px;">Current Password</label>
+                    <input type="password" value="placeholder" style="width:100%; height:42px; padding:0 12px; border:1px solid #243049; background:#0C1120; color:#EDF1FB; border-radius:10px; font-family:Inter; font-size:13px; outline:none; box-sizing:border-box;">
+                  </div>
+                  <div style="display:grid; grid-template-columns:1fr 1fr; gap:13px;">
+                    <div>
+                      <label style="display:block; font-size:11.5px; font-weight:600; color:#8B95A8; margin-bottom:5px;">New Password</label>
+                      <input type="password" placeholder="Min. 8 characters" style="width:100%; height:42px; padding:0 12px; border:1px solid #243049; background:#0C1120; color:#EDF1FB; border-radius:10px; font-family:Inter; font-size:13px; outline:none; box-sizing:border-box;">
+                    </div>
+                    <div>
+                      <label style="display:block; font-size:11.5px; font-weight:600; color:#8B95A8; margin-bottom:5px;">Confirm New Password</label>
+                      <input type="password" placeholder="Repeat password" style="width:100%; height:42px; padding:0 12px; border:1px solid #243049; background:#0C1120; color:#EDF1FB; border-radius:10px; font-family:Inter; font-size:13px; outline:none; box-sizing:border-box;">
+                    </div>
+                  </div>
+                  <div style="display:flex; justify-content:flex-end;">
+                    <button onClick="{{ doSave }}" style="height:38px; padding:0 18px; border:none; border-radius:9px; background:linear-gradient(135deg,#D4B25E,#C9A84C); color:#1a1404; font-family:Inter; font-size:13px; font-weight:700; cursor:pointer;">Update password</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Communication preferences -->
+              <div style="background:#101728; border:1px solid #1A2336; border-radius:14px; padding:20px 22px;">
+                <div style="font-size:12.5px; font-weight:600; color:#EDF1FB; margin-bottom:18px;">Communication Preferences</div>
+                <div style="display:flex; flex-direction:column; gap:16px;">
+                  <sc-for list="{{ clientNotifs }}" as="cn2" hint-placeholder-count="4">
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+                      <div>
+                        <div style="font-size:13px; font-weight:500; color:#EDF1FB;">{{ cn2.label }}</div>
+                        <div style="font-size:11.5px; color:#5C6678; margin-top:2px;">{{ cn2.desc }}</div>
+                      </div>
+                      <button onClick="{{ cn2.toggle }}" style="{{ cn2.togStyle }}">
+                        <span style="position:absolute; top:2px; right:{{ cn2.knob }}; width:20px; height:20px; border-radius:50%; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,.35); transition:right 150ms;"></span>
+                      </button>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </sc-if>
+
+      </div><!-- /scrollable -->
+    </div><!-- /main -->
+  </div><!-- /app frame -->
+
+  <!-- Toasts -->
+  <div style="position:fixed; bottom:22px; right:22px; display:flex; flex-direction:column; gap:8px; z-index:9999; pointer-events:none;">
+    <sc-for list="{{ toasts }}" as="t" hint-placeholder-count="0">
+      <div style="{{ t.toastStyle }}">{{ t.msg }}</div>
+    </sc-for>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    role: 'partner',
+    toasts: [],
+    cNotif: { email:true, whatsapp:true, sms:false, digest:true }
+  };
+
+  icon(name, sz) {
+    const size = sz || 16;
+    const R = React;
+    const svg = (...ch) => R.createElement('svg',{xmlns:'http://www.w3.org/2000/svg',width:size,height:size,viewBox:'0 0 24 24',fill:'none',stroke:'currentColor',strokeWidth:'1.75',strokeLinecap:'round',strokeLinejoin:'round',style:{display:'block',flexShrink:0}},...ch);
+    const p  = d       => R.createElement('path',   {d});
+    const c  = (cx,cy,r)=> R.createElement('circle',{cx,cy,r});
+    const rc = (x,y,w,h,rx)=> R.createElement('rect',{x,y,width:w,height:h,rx});
+    const pl = pts     => R.createElement('polyline',{points:pts});
+    const l  = (x1,y1,x2,y2)=> R.createElement('line',{x1,y1,x2,y2});
+    const defs = {
+      grid:      [rc(3,3,7,7,1),rc(14,3,7,7,1),rc(3,14,7,7,1),rc(14,14,7,7,1)],
+      search:    [c(11,11,8),p('m21 21-4.35-4.35')],
+      doc:       [p('M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'),pl('14 2 14 8 20 8')],
+      'file-text':[p('M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'),pl('14 2 14 8 20 8'),l(16,13,8,13),l(16,17,8,17)],
+      scale:     [p('m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z'),p('m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z'),p('M7 21h10'),l(12,21,12,3),p('M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2')],
+      users:     [p('M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2'),c(9,7,4),p('M23 21v-2a4 4 0 0 0-3-3.87'),p('M16 3.13a4 4 0 0 1 0 7.75')],
+      user:      [p('M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'),c(12,7,4)],
+      receipt:   [p('M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1z'),l(8,10,16,10),l(8,14,16,14)],
+      workflow:  [rc(3,3,5,5,1),rc(16,3,5,5,1),rc(3,16,5,5,1),p('M5.5 5.5v3a6 6 0 0 0 6 6h2'),p('M18.5 5.5V16a2 2 0 0 1-2 2')],
+      lock:      [rc(3,11,18,11,2),p('M7 11V7a5 5 0 0 1 10 0v4')],
+      clock:     [c(12,12,10),pl('12 6 12 12 16 14')],
+      bell:      [p('M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9'),p('M13.73 21a2 2 0 0 1-3.46 0')],
+      calendar:  [rc(3,4,18,18,2),p('M16 2v4'),p('M8 2v4'),l(3,10,21,10)],
+      chart:     [l(12,20,12,10),l(18,20,18,4),l(6,20,6,16)],
+      sparkles:  [p('m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3z')],
+      edit:      [p('M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7'),p('M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z')],
+      help:      [c(12,12,10),p('M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3'),l(12,17,12.01,17)],
+      briefcase: [rc(2,7,20,14,2),p('M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16'),l(2,13,22,13)],
+      message:   [p('M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z')],
+      upload:    [p('M21 15v4a2 2 0 0 0-2 2H5a2 2 0 0 0-2-2v-4'),pl('17 8 12 3 7 8'),l(12,3,12,15)],
+      warning:   [p('M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'),l(12,9,12,13),l(12,17,12.01,17)]
+    };
+    const els = defs[name];
+    if (!els) return R.createElement('span',{style:{display:'inline-block',width:size,height:size}});
+    return svg(...els);
+  }
+
+  toast(msg, kind) {
+    const id = Date.now();
+    const cols = {ok:'#10B981', warn:'#F59E0B', danger:'#EF4444', info:'#C9A84C'};
+    const col = cols[kind] || cols.info;
+    const toastStyle = 'background:#101728;border:1px solid '+col+';border-radius:10px;padding:10px 15px;font-size:12.5px;color:#EDF1FB;font-family:Inter;box-shadow:0 4px 20px rgba(0,0,0,.5);pointer-events:auto;min-width:220px;';
+    this.setState(s => ({ toasts: [...(s.toasts||[]), {id, msg, toastStyle}] }));
+    setTimeout(() => this.setState(s => ({ toasts: (s.toasts||[]).filter(t => t.id !== id) })), 3000);
+  }
+
+  renderVals() {
+    const s = this.state;
+    const role = s.role || 'partner';
+    const isPartner   = role === 'partner';
+    const isAssociate = role === 'associate';
+    const isParalegal = role === 'paralegal';
+    const isJudge     = role === 'judge';
+    const isClient    = role === 'client';
+    const isFirmRole  = isPartner || isAssociate || isParalegal;
+    const notClient   = !isClient;
+
+    // ── ROLE TABS ──
+    const rtDefs = [
+      {id:'partner',   label:'Partner / Admin', col:'#C9A84C'},
+      {id:'associate', label:'Associate',        col:'#3B82F6'},
+      {id:'paralegal', label:'Paralegal',        col:'#F59E0B'},
+      {id:'judge',     label:'Judge',            col:'#A78BFA'},
+      {id:'client',    label:'Client Portal',    col:'#10B981'}
+    ];
+    const roleTabs = rtDefs.map(r => ({
+      label: r.label,
+      on: () => this.setState({role: r.id}),
+      style: role===r.id
+        ? 'height:22px;padding:0 11px;border:none;border-radius:5px;background:'+r.col+';color:#0A0F1E;font-family:Inter;font-size:11px;font-weight:700;cursor:pointer;'
+        : 'height:22px;padding:0 11px;border:1px solid #1A2336;border-radius:5px;background:transparent;color:#3A4A6A;font-family:Inter;font-size:11px;font-weight:500;cursor:pointer;',
+      hov: role===r.id ? '' : 'border-color:'+r.col+';color:'+r.col+';'
+    }));
+
+    // ── SIDEBAR NAV ──
+    const nb  = (active) => 'display:flex;align-items:center;gap:9px;width:100%;border:none;border-radius:7px;padding:7px 9px;cursor:pointer;font-family:Inter;text-align:left;'+(active?'background:rgba(201,168,76,.1);color:#EDF1FB;font-weight:600;':'background:transparent;color:#8B95A8;font-weight:500;');
+    const nhov = 'background:#161D30;color:#EDF1FB;';
+    const firmNavMap = {
+      partner:   [{l:'Dashboard',ic:'grid',active:false,badge:''},  {l:'Legal Research',ic:'search',active:false,badge:''},  {l:'Documents',ic:'doc',active:false,badge:'234'},{l:'Contract Analysis',ic:'file-text',active:false,badge:''},{l:'Case Management',ic:'scale',active:false,badge:'23'},{l:'Clients',ic:'users',active:false,badge:''},{l:'Billing & Time',ic:'receipt',active:false,badge:''},{l:'Workflows',ic:'workflow',active:false,badge:''},{l:'Team',ic:'users',active:false,badge:''},{l:'Profile',ic:'user',active:true,badge:''},{l:'Settings',ic:'lock',active:false,badge:''}],
+      associate: [{l:'Dashboard',ic:'grid',active:false,badge:''},  {l:'Legal Research',ic:'search',active:false,badge:''},  {l:'Documents',ic:'doc',active:false,badge:''},{l:'Contract Review',ic:'file-text',active:false,badge:''},{l:'My Cases',ic:'scale',active:false,badge:'8'},{l:'Time Log',ic:'clock',active:false,badge:''},{l:'Chat',ic:'message',active:false,badge:'2'},{l:'Profile',ic:'user',active:true,badge:''},{l:'Settings',ic:'lock',active:false,badge:''}],
+      paralegal: [{l:'My Matters',ic:'scale',active:false,badge:'3'},{l:'Documents',ic:'doc',active:false,badge:''},{l:'Time Log',ic:'clock',active:false,badge:''},{l:'Messages',ic:'message',active:false,badge:'1'},{l:'Profile',ic:'user',active:true,badge:''}]
+    };
+    const bStyle = 'margin-left:auto;font-size:9px;font-weight:700;color:#C9A84C;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.18);padding:1px 6px;border-radius:9px;font-family:\'JetBrains Mono\',monospace;';
+    const sideNavItems = (firmNavMap[role]||[]).map(n => ({
+      label:n.l, icEl:this.icon(n.ic,14), icStyle:n.active?'display:flex;color:#C9A84C;':'display:flex;color:#5C6678;',
+      style:nb(n.active), hov:n.active?'':nhov, hasBadge:!!n.badge, badge:n.badge, badgeStyle:bStyle,
+      on:()=>this.toast(n.l,'info')
+    }));
+
+    const jnb = (active) => 'display:flex;align-items:center;gap:9px;width:100%;border:none;border-radius:8px;padding:9px 10px;cursor:pointer;font-family:Inter;text-align:left;'+(active?'background:rgba(155,184,232,.1);color:#D8E0F0;font-weight:600;':'background:transparent;color:#4A5A7A;font-weight:500;');
+    const judgeNav = [{l:'Case Docket',ic:'scale',a:false},{l:'Research',ic:'search',a:false},{l:'Draft Judgment',ic:'edit',a:false},{l:'Court Diary',ic:'calendar',a:false},{l:'Case Analytics',ic:'chart',a:false},{l:'Profile',ic:'user',a:true},{l:'Settings',ic:'lock',a:false}]
+      .map(n => ({label:n.l, icEl:this.icon(n.ic,14), icStyle:n.a?'display:flex;color:#9BB8E8;':'display:flex;color:#4A5A7A;', style:jnb(n.a), hov:n.a?'':'background:#131D2E;color:#D8E0F0;', on:()=>this.toast(n.l,'info')}));
+
+    const cnb = (active) => 'display:flex;align-items:center;gap:9px;width:100%;border:none;border-radius:8px;padding:8px 9px;cursor:pointer;font-family:Inter;text-align:left;'+(active?'background:rgba(201,168,76,.1);color:#EDF1FB;font-weight:600;':'background:transparent;color:#8B95A8;font-weight:500;');
+    const clientNav = [{l:'My Matters',ic:'scale',a:false},{l:'My Documents',ic:'doc',a:false},{l:'Messages',ic:'message',a:false},{l:'Profile',ic:'user',a:true},{l:'Help',ic:'help',a:false}]
+      .map(n => ({label:n.l, icEl:this.icon(n.ic,14), icStyle:n.a?'display:flex;color:#C9A84C;':'display:flex;color:#5C6678;', style:cnb(n.a), hov:n.a?'':'background:#111929;color:#EDF1FB;', on:()=>this.toast(n.l,'info')}));
+
+    // ── USER INFO ──
+    const uiMap = {partner:{ini:'BF',name:'B. Fashola SAN',role:'Managing Partner',ac:'#C9A84C'}, associate:{ini:'NO',name:'N. Okonkwo',role:'Senior Associate',ac:'#3B82F6'}, paralegal:{ini:'CN',name:'C. Nwosu',role:'Paralegal',ac:'#F59E0B'}, judge:{ini:'AO',name:'Hon. J. Obi',role:'Presiding Judge',ac:'#9BB8E8'}, client:{ini:'EO',name:'Chief Okafor',role:'Client',ac:'#C9A84C'}};
+    const ui = uiMap[role] || uiMap.partner;
+    const hdrAvaStyle = 'width:22px;height:22px;border-radius:50%;background:linear-gradient(140deg,#2b3650,#1a2233);border:1.5px solid '+ui.ac+';display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:'+ui.ac+';flex:none;';
+    const sideAvaStyle= 'width:32px;height:32px;border-radius:50%;background:linear-gradient(140deg,#2b3650,#1a2233);border:2px solid '+ui.ac+';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:'+ui.ac+';flex:none;';
+
+    // ── PARTNER DATA ──
+    const partnerKpis = [
+      {label:'Active Matters',   value:'23',    change:'↑ 12% vs last month', cStyle:'font-size:11px;color:#10B981;', sub:'4 due this week'},
+      {label:'Revenue Attributed',value:'₦8.2M',change:'↑ 18% this period',  cStyle:'font-size:11px;color:#10B981;', sub:'Month to date'},
+      {label:'Hours Logged',     value:'142.5', change:'79% of 180h target',  cStyle:'font-size:11px;color:#F59E0B;', sub:'Goal: 180h / month'},
+      {label:'Team Efficiency',  value:'87%',   change:'↑ 3% vs last month',  cStyle:'font-size:11px;color:#10B981;', sub:'Closed on time'}
+    ];
+    const pipelineAreas = [
+      {area:'Commercial Law', count:9, pct:39, col:'#C9A84C'},
+      {area:'Property Law',   count:6, pct:26, col:'#3B82F6'},
+      {area:'Arbitration',    count:4, pct:17, col:'#10B981'},
+      {area:'Constitutional', count:2, pct:9,  col:'#A78BFA'},
+      {area:'Employment',     count:2, pct:9,  col:'#F59E0B'}
+    ].map(a => ({...a, barStyle:'height:100%;width:'+a.pct+'%;background:'+a.col+';border-radius:10px;transition:width 600ms;'}));
+    const teamRows = [
+      {name:'Ngozi Okonkwo',   role:'Senior Associate', matters:8, hours:'87.5h', eff:94,  initials:'NO', ac:'#3B82F6'},
+      {name:'Adewale Adeyemi', role:'Associate',         matters:6, hours:'72.0h', eff:88,  initials:'AA', ac:'#10B981'},
+      {name:'Chioma Eze',      role:'Paralegal',         matters:3, hours:'52.0h', eff:100, initials:'CE', ac:'#F59E0B'},
+      {name:'Fatima Garba',    role:'Admin',             matters:0, hours:'40.0h', eff:100, initials:'FG', ac:'#A78BFA'},
+      {name:'Samuel Okafor',   role:'Billing',           matters:0, hours:'12.5h', eff:100, initials:'SO', ac:'#8B95A8'}
+    ].map(m => ({
+      ...m,
+      ava: 'width:28px;height:28px;border-radius:50%;background:linear-gradient(140deg,#2b3650,#1a2233);border:1.5px solid '+m.ac+';display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:700;color:'+m.ac+';flex:none;',
+      effStyle: m.eff>=95?'color:#10B981;':m.eff>=85?'color:#F59E0B;':'color:#EF4444;'
+    }));
+    const typeCol = {doc:'#C9A84C',time:'#3B82F6',billing:'#10B981',upload:'#A78BFA',ai:'#9BB8E8',warn:'#F59E0B'};
+    const actFeed = [
+      {actor:'Ngozi Okonkwo',   action:'filed response brief',    matter:'LCCI v. AG Lagos',              time:'2h ago',    type:'doc'},
+      {actor:'Adewale Adeyemi', action:'logged 6.5 hours',        matter:'Sterling Oil Arbitration',      time:'3h ago',    type:'time'},
+      {actor:'System',          action:'invoice paid ₦450,000',   matter:'Chief Adeleke v. FGN',          time:'5h ago',    type:'billing'},
+      {actor:'Chioma Eze',      action:'uploaded 3 exhibits',      matter:'TechNova Ltd Acquisition',     time:'Yesterday', type:'upload'},
+      {actor:'Ngozi Okonkwo',   action:'AI research completed',   matter:'Kano State v. Dangote',         time:'Yesterday', type:'ai'},
+      {actor:'System',          action:'deadline in 3 days',      matter:'Federal v. Midcoast Resources', time:'2 days ago',type:'warn'}
+    ].map(a => {
+      const col = typeCol[a.type]||'#C9A84C';
+      const icName = a.type==='doc'?'doc':a.type==='time'?'clock':a.type==='billing'?'receipt':a.type==='upload'?'upload':a.type==='ai'?'sparkles':'warning';
+      return {...a, dotIco:this.icon(icName,13), dotStyle:'width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,.25);border:1px solid '+(col+'28')+';display:flex;align-items:center;justify-content:center;color:'+col+';flex:none;'};
+    });
+    const firmStats = [
+      {label:'AI Research Queries',value:'1,240',ik:'sparkles',col:'#C9A84C'},
+      {label:'Documents Created',  value:'234',  ik:'doc',     col:'#3B82F6'},
+      {label:'Matters Closed',     value:'8',    ik:'scale',   col:'#10B981'},
+      {label:'New Clients',        value:'3',    ik:'users',   col:'#A78BFA'}
+    ].map(f => ({...f, icEl:this.icon(f.ik,18), iconBg:'width:40px;height:40px;border-radius:10px;background:rgba(0,0,0,.2);border:1px solid '+(f.col+'30')+';display:flex;align-items:center;justify-content:center;color:'+f.col+';flex:none;'}));
+
+    // ── ASSOCIATE DATA ──
+    const assocKpis = [
+      {label:'Active Matters',    value:'8',     sub:'↑ 1 this week',      cardStyle:'background:#101728;border:1px solid #1A2336;border-radius:13px;padding:17px 19px;', valStyle:'font-family:Source Serif 4,serif;font-size:26px;font-weight:600;color:#F4F1E6;margin-bottom:4px;', subStyle:'font-size:11px;color:#10B981;'},
+      {label:'Hours Logged',      value:'87.5h', sub:'55% of 160h target', cardStyle:'background:#101728;border:1px solid #1A2336;border-radius:13px;padding:17px 19px;', valStyle:'font-family:Source Serif 4,serif;font-size:26px;font-weight:600;color:#F4F1E6;margin-bottom:4px;', subStyle:'font-size:11px;color:#F59E0B;'},
+      {label:'Documents Created', value:'34',    sub:'This month',          cardStyle:'background:#101728;border:1px solid #1A2336;border-radius:13px;padding:17px 19px;', valStyle:'font-family:Source Serif 4,serif;font-size:26px;font-weight:600;color:#F4F1E6;margin-bottom:4px;', subStyle:'font-size:11px;color:#8B95A8;'},
+      {label:'Tasks Pending',     value:'12',    sub:'3 overdue',           cardStyle:'background:#101728;border:1px solid rgba(239,68,68,.3);border-radius:13px;padding:17px 19px;', valStyle:'font-family:Source Serif 4,serif;font-size:26px;font-weight:600;color:#EF4444;margin-bottom:4px;', subStyle:'font-size:11px;color:#EF4444;'}
+    ];
+    const prioSty = {
+      high:   'font-size:10px;font-weight:700;letter-spacing:.04em;color:#EF4444;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);padding:1px 7px;border-radius:5px;text-transform:uppercase;',
+      medium: 'font-size:10px;font-weight:700;letter-spacing:.04em;color:#F59E0B;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);padding:1px 7px;border-radius:5px;text-transform:uppercase;',
+      low:    'font-size:10px;font-weight:700;letter-spacing:.04em;color:#5C6678;background:rgba(92,102,120,.08);border:1px solid #1A2336;padding:1px 7px;border-radius:5px;text-transform:uppercase;'
+    };
+    const dueSty = d => d==='Today'?'font-size:11px;font-weight:600;color:#EF4444;':d==='Tomorrow'?'font-size:11px;font-weight:600;color:#F59E0B;':'font-size:11px;color:#5C6678;';
+    const assocTasks = [
+      {task:'Draft statement of defence',          matter:'Sterling Oil v. Lagos State',      due:'Today',   priority:'High',   pk:'high'},
+      {task:'Review contract clauses 7–12',        matter:'TechNova Ltd Acquisition',         due:'Today',   priority:'High',   pk:'high'},
+      {task:'File motion to compel discovery',     matter:'LCCI v. AG Lagos',                 due:'22 Jun',  priority:'Medium', pk:'medium'},
+      {task:'Prepare witness statement schedule',  matter:'Chief Adeleke v. FGN',              due:'23 Jun',  priority:'Medium', pk:'medium'},
+      {task:'Annotate exhibit bundle (vols I–IV)', matter:'Kano State v. Dangote Industries', due:'25 Jun',  priority:'Low',    pk:'low'},
+      {task:'Update client on discovery status',   matter:'Okonkwo Family Estate',            due:'26 Jun',  priority:'Low',    pk:'low'},
+      {task:'AI research: SCOA precedent review',  matter:'Federal v. Midcoast Resources',    due:'27 Jun',  priority:'Medium', pk:'medium'}
+    ].map(t => ({...t, prioStyle:prioSty[t.pk]||prioSty.low, dueStyle:dueSty(t.due)}));
+    const assocResearch = [
+      {query:'Tortious liability of corporate bodies under Nigerian law',   juris:'Nigeria', date:'Today',    source:'Supreme Court'},
+      {query:'OHADA arbitration award enforcement mechanisms',              juris:'OHADA',   date:'Yesterday',source:'CCJA'},
+      {query:'Constructive trust interests in property — 2020–2025',       juris:'Nigeria', date:'19 Jun',   source:'Court of Appeal'},
+      {query:'Piercing the corporate veil — recent decisions 2022–2025',   juris:'Nigeria', date:'18 Jun',   source:'Federal High Court'},
+      {query:'Wrongful dismissal remedies — NICN jurisdiction',            juris:'Nigeria', date:'17 Jun',   source:'NICN'}
+    ];
+
+    // ── PARALEGAL DATA ──
+    const paraKpis = [
+      {label:'Assigned Matters',   value:'3',    sub:'All active'},
+      {label:'Hours Logged',       value:'52.0h',sub:'This month'},
+      {label:'Documents Uploaded', value:'18',   sub:'This month'}
+    ];
+    const paraMatters = [
+      {ref:'AC/2026/0047', title:'Sterling Oil v. Lagos State',         type:'Litigation', status:'Active', tasks:3, docs:7},
+      {ref:'AC/2026/0023', title:'TechNova Ltd — Share Purchase',       type:'Commercial', status:'Active', tasks:2, docs:5},
+      {ref:'AC/2026/0018', title:'Okonkwo Family Estate Matter',        type:'Property',   status:'Active', tasks:1, docs:6}
+    ];
+    const paraTimeLog = [
+      {date:'21 Jun', hrs:'3.0', desc:'Indexed and filed exhibit bundle A–F',               matter:'Sterling Oil'},
+      {date:'20 Jun', hrs:'4.5', desc:'Prepared court bundle for 23 Jun hearing',           matter:'TechNova'},
+      {date:'19 Jun', hrs:'2.5', desc:'Client document collection and scanning',            matter:'Okonkwo Estate'},
+      {date:'18 Jun', hrs:'1.0', desc:'Updated matter file index and cross-references',     matter:'Sterling Oil'},
+      {date:'17 Jun', hrs:'2.0', desc:'Drafted correspondence bundle cover sheet',          matter:'TechNova'}
+    ];
+
+    // ── JUDGE DATA ──
+    const judgeStats = [
+      {label:'Cases on Docket',     value:'127', valStyle:'font-family:JetBrains Mono,monospace;font-size:30px;font-weight:600;color:#EDF1FB;margin-bottom:2px;'},
+      {label:'Pending Judgments',   value:'23',  valStyle:'font-family:JetBrains Mono,monospace;font-size:30px;font-weight:600;color:#F59E0B;margin-bottom:2px;'},
+      {label:'Reserved for Ruling', value:'8',   valStyle:'font-family:JetBrains Mono,monospace;font-size:30px;font-weight:600;color:#EF4444;margin-bottom:2px;'},
+      {label:'Delivered This Term', value:'41',  valStyle:'font-family:JetBrains Mono,monospace;font-size:30px;font-weight:600;color:#10B981;margin-bottom:2px;'}
+    ];
+    const backlog = [
+      {label:'Under 3 months', count:51, pct:40, col:'#10B981'},
+      {label:'3 – 6 months',   count:45, pct:35, col:'#D4B25E'},
+      {label:'6 – 12 months',  count:23, pct:18, col:'#EF4444'},
+      {label:'Over 12 months', count:8,  pct:7,  col:'#7F1D1D'}
+    ].map(b => ({...b, dotStyle:'width:8px;height:8px;border-radius:50%;background:'+b.col+';flex:none;', barStyle:'height:100%;width:'+b.pct+'%;background:'+b.col+';border-radius:10px;transition:width 600ms;'}));
+    const jDrafts = [
+      {title:'Sterling Oil Exploration v. AG Lagos State',  caseNo:'FHC/L/CS/892/2025',   pct:72},
+      {title:'Kano State v. Dangote Industries Ltd',        caseNo:'FHC/KN/CS/0441/2024', pct:45},
+      {title:'Chief E.I. Okafor v. FGN',                   caseNo:'FHC/L/CS/0123/2026',  pct:18}
+    ].map(d => ({...d, barStyle:'height:100%;width:'+d.pct+'%;background:linear-gradient(90deg,#9BB8E8,#7AA0D8);border-radius:10px;'}));
+    const dTypePill = {
+      Hearing:     'font-size:9.5px;font-weight:700;color:#3B82F6;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);padding:1px 7px;border-radius:5px;',
+      Motion:      'font-size:9.5px;font-weight:700;color:#F59E0B;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);padding:1px 7px;border-radius:5px;',
+      Ruling:      'font-size:9.5px;font-weight:700;color:#A78BFA;background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.2);padding:1px 7px;border-radius:5px;',
+      Judgment:    'font-size:9.5px;font-weight:700;color:#C9A84C;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);padding:1px 7px;border-radius:5px;',
+      'Cause List':'font-size:9.5px;font-weight:700;color:#5C6678;background:#141B2E;border:1px solid #1A2336;padding:1px 7px;border-radius:5px;'
+    };
+    const diary = [
+      {dNum:'23', dName:'Tue', time:'9:00 AM',  matter:'Kano State v. Dangote — Continuation of hearing',   type:'Hearing'},
+      {dNum:'23', dName:'Tue', time:'11:30 AM', matter:'Chief Okafor v. FGN — Motion on notice',             type:'Motion'},
+      {dNum:'24', dName:'Wed', time:'9:00 AM',  matter:'TechNova Ltd v. SEC Nigeria — Ruling',               type:'Ruling'},
+      {dNum:'25', dName:'Thu', time:'2:00 PM',  matter:'Sterling Oil v. AG Lagos — Judgment',                type:'Judgment'},
+      {dNum:'26', dName:'Fri', time:'9:00 AM',  matter:'General Cause List — 14 matters',                   type:'Cause List'}
+    ].map(d => ({...d, typePill:dTypePill[d.type]||dTypePill['Cause List']}));
+
+    // ── CLIENT DATA ──
+    const sPill = st => st==='Active'?'font-size:9.5px;font-weight:700;color:#10B981;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);padding:3px 9px;border-radius:6px;white-space:nowrap;':'font-size:9.5px;font-weight:700;color:#F59E0B;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);padding:3px 9px;border-radius:6px;white-space:nowrap;';
+    const clientMatters = [
+      {ref:'AC/2026/0123', title:'Chief Emmanuel Okafor v. Federal Government of Nigeria',  type:'Constitutional',     status:'Active',             solicitor:'B. Fashola SAN', nextHearing:'25 Jun 2026', update:'Brief of argument filed and served. Matter comes up 25 June for oral argument before the Full Court.'},
+      {ref:'AC/2025/0089', title:'Okafor Merchant Bank — Commercial Property Acquisition',  type:'Commercial Property', status:'Awaiting documents', solicitor:'N. Okonkwo',     nextHearing:'—',           update:'Title deed verification ongoing. 2 documents outstanding: Land Use Act Consent and Survey Plan.'}
+    ].map(m => ({...m, statusPill:sPill(m.status)}));
+    const clientDocs = [
+      {name:'Brief of Argument — Okafor v. FGN.pdf',     date:'14 Jun 2026', type:'Court Filing',  size:'1.2 MB'},
+      {name:'Statement of Claim (Amended).pdf',           date:'2 Mar 2026',  type:'Court Filing',  size:'890 KB'},
+      {name:'Retainer Agreement — Adeyemi Chambers.pdf',  date:'15 Jan 2026', type:'Agreement',     size:'340 KB'},
+      {name:'Title Deed — Plot 14A Maitama, Abuja.pdf',   date:'8 Jan 2026',  type:'Property',      size:'2.1 MB'},
+      {name:'Engagement Letter Jan 2025.pdf',             date:'10 Jan 2025', type:'Correspondence', size:'145 KB'}
+    ];
+    const togS = on => 'width:44px;height:24px;border-radius:12px;border:none;background:'+(on?'linear-gradient(135deg,#D4B25E,#C9A84C)':'#243049')+';cursor:pointer;position:relative;flex:none;transition:background 150ms;';
+    const knob  = on => on?'2px':'22px';
+    const cn = s.cNotif || {};
+    const defOn = {email:true,whatsapp:true,sms:false,digest:true};
+    const clientNotifs = [
+      {key:'email',    label:'Email notifications', desc:'Case updates, document shares, and billing notices'},
+      {key:'whatsapp', label:'WhatsApp updates',     desc:'Urgent case alerts and hearing day reminders'},
+      {key:'sms',      label:'SMS alerts',           desc:'Emergency notifications only'},
+      {key:'digest',   label:'Weekly case summary',  desc:'Summary of your matters every Monday at 8:00 AM'}
+    ].map(n => {
+      const on = cn.hasOwnProperty(n.key) ? !!cn[n.key] : defOn[n.key];
+      return {...n, togStyle:togS(on), knob:knob(on),
+        toggle:()=>this.setState(st=>{ const o=Object.assign({},st.cNotif||{}); o[n.key]=!on; return {cNotif:o}; })
+      };
+    });
+
+    // Shared icons
+    const searchIco = this.icon('search',13);
+    const bellIco   = this.icon('bell',13);
+    const editIco   = this.icon('edit',13);
+    const chIco     = this.icon('chart',13);
+    const bfIco     = this.icon('briefcase',12);
+    const scIco     = this.icon('scale',12);
+    const ckIco     = this.icon('clock',12);
+    const lockIco   = this.icon('lock',22);
+    const docIco    = this.icon('doc',15);
+
+    const headerTitle = isJudge ? 'Judicial Profile' : 'My Profile';
+
+    return {
+      role, roleTabs,
+      isPartner, isAssociate, isParalegal, isJudge, isClient, isFirmRole, notClient,
+      sideNavItems, judgeNav, clientNav,
+      hdrAvaStyle, sideAvaStyle,
+      hdrInitials:ui.ini, hdrName:ui.name,
+      sideInitials:ui.ini, sideName:ui.name, sideRole:ui.role,
+      headerTitle,
+      partnerKpis, pipelineAreas, teamRows, actFeed, firmStats,
+      assocKpis, assocTasks, assocResearch,
+      paraKpis, paraMatters, paraTimeLog,
+      judgeStats, backlog, jDrafts, diary,
+      clientMatters, clientDocs, clientNotifs,
+      searchIco, bellIco, editIco, chIco, bfIco, scIco, ckIco, lockIco, docIco,
+      toasts: s.toasts || [],
+      doToast2:  () => this.toast('Coming soon', 'info'),
+      doEdit:    () => this.toast('Profile editing enabled', 'info'),
+      doFirmRpt: () => this.toast('Opening firm reports…', 'info'),
+      doSearch:  () => this.toast('Research module', 'info'),
+      logTime:   () => this.toast('Time entry logged', 'ok'),
+      reqAI:     () => this.toast('AI access request sent to admin', 'ok'),
+      newDraft:  () => this.toast('New judgment draft created', 'ok'),
+      doLogout:  () => this.toast('Logging out…', 'warn'),
+      doSave:    () => this.toast('Changes saved', 'ok')
+    };
+  }
+}
+</script>
+</body>
+</html>

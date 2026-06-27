@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{background:#0A0F1E;}
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-thumb{background:#243049;border-radius:8px;border:2px solid #0A0F1E;}
+::-webkit-scrollbar-thumb:hover{background:#33415C;}
+::-webkit-scrollbar-track{background:transparent;}
+@keyframes dl-rise{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+@keyframes dl-sldr{from{opacity:0;transform:translateX(18px);}to{opacity:1;transform:translateX(0);}}
+@keyframes dl-fade{from{opacity:0;}to{opacity:1;}}
+@keyframes dl-scale{from{opacity:0;transform:scale(.96) translateY(-6px);}to{opacity:1;transform:scale(1) translateY(0);}}
+@keyframes shimmer{0%{background-position:-700px 0;}100%{background-position:700px 0;}}
+</style>
+</helmet>
+
+<div style="display:flex;flex-direction:column;height:100vh;width:100vw;overflow:hidden;background:#0A0F1E;color:#EDF1FB;font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased;">
+
+  <!-- TOP NAV -->
+  <header style="height:54px;flex:none;display:flex;align-items:center;gap:0;padding:0 18px;border-bottom:1px solid #1A2336;background:#0B1020;position:relative;z-index:30;">
+    <div style="display:flex;align-items:center;gap:9px;padding-right:18px;border-right:1px solid #1A2336;margin-right:14px;flex:none;">
+      <div style="width:27px;height:27px;flex:none;border-radius:7px;background:linear-gradient(150deg,#C9A84C,#9c7f33);display:flex;align-items:center;justify-content:center;">
+        <span style="font-family:'Source Serif 4',serif;font-weight:700;font-size:15px;color:#0A0F1E;line-height:1;">D</span>
+      </div>
+      <div style="line-height:1.1;">
+        <div style="font-family:'Source Serif 4',serif;font-weight:700;font-size:14px;color:#F4F1E6;">DeLaw</div>
+        <div style="font-size:8.5px;letter-spacing:.12em;text-transform:uppercase;color:#7d6a3c;font-weight:600;">Global Patterns</div>
+      </div>
+    </div>
+    <nav style="display:flex;align-items:center;gap:2px;">
+      <sc-for list="{{ navTabs }}" as="t" hint-placeholder-count="5">
+        <button onClick="{{ t.on }}" style="{{ t.style }}">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;opacity:.55;">{{ t.num }}</span>
+          {{ t.label }}
+        </button>
+      </sc-for>
+    </nav>
+    <div style="margin-left:auto;font-size:11px;color:#5C6678;">Adeyemi Chambers · Babatunde Fashola SAN</div>
+  </header>
+
+  <!-- CONTENT AREA -->
+  <div style="flex:1;min-height:0;position:relative;">
+
+    <!-- ══════════════════════════════════════ -->
+    <!-- 52 · NOTIFICATIONS CENTER              -->
+    <!-- ══════════════════════════════════════ -->
+    <sc-if value="{{ isNotif }}" hint-placeholder-val="{{ true }}">
+      <div style="position:absolute;inset:0;display:flex;flex-direction:column;">
+
+        <!-- Control bar -->
+        <div style="flex:none;padding:8px 20px;display:flex;align-items:center;gap:10px;background:#0A0F1E;border-bottom:1px solid #1A2336;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#5C6678;font-weight:600;letter-spacing:.08em;">52</span>
+          <span style="font-size:12px;font-weight:600;color:#8B95A8;">Notification Center</span>
+          <span style="flex:1;height:1px;background:#1A2336;"></span>
+          <sc-if value="{{ notifOpen }}">
+            <button onClick="{{ closeNotif }}" style="display:flex;align-items:center;gap:5px;height:26px;padding:0 10px;border:1px solid #33415C;border-radius:6px;background:transparent;color:#8B95A8;font-family:Inter;font-size:11px;font-weight:600;cursor:pointer;" style-hover="color:#EDF1FB;">{{ xIcon }} Close panel</button>
+          </sc-if>
+          <sc-if value="{{ notifClosed }}">
+            <button onClick="{{ openNotif }}" style="display:flex;align-items:center;gap:5px;height:26px;padding:0 10px;border:1px solid rgba(201,168,76,.4);border-radius:6px;background:transparent;color:#C9A84C;font-family:Inter;font-size:11px;font-weight:600;cursor:pointer;" style-hover="border-color:#C9A84C;">{{ bellIcon }} Open panel</button>
+          </sc-if>
+          <span style="font-size:10.5px;color:#5C6678;font-style:italic;">Click a notification to mark it as read</span>
+        </div>
+
+        <!-- Simulation frame: flex row — background fills left, panel attaches right -->
+        <div style="flex:1;display:flex;min-height:0;margin:10px 20px 20px;border-radius:12px;overflow:hidden;border:1px solid #1A2336;">
+
+          <!-- LEFT: App background -->
+          <div style="{{ notifBgStyle }}">
+            <!-- Mini sidebar -->
+            <div style="width:62px;flex:none;background:#0B1020;border-right:1px solid #1A2336;display:flex;flex-direction:column;align-items:center;padding:10px 0 8px;gap:3px;">
+              <div style="width:30px;height:30px;border-radius:7px;background:linear-gradient(150deg,#C9A84C,#9c7f33);display:flex;align-items:center;justify-content:center;margin-bottom:8px;">
+                <span style="font-family:'Source Serif 4',serif;font-weight:700;font-size:16px;color:#0A0F1E;line-height:1;">D</span>
+              </div>
+              <div style="width:36px;height:36px;border-radius:8px;background:#141B2E;display:flex;align-items:center;justify-content:center;color:#C9A84C;">{{ homeIcon }}</div>
+              <div style="width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#5C6678;">{{ briefIcon }}</div>
+              <div style="width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#5C6678;">{{ fileIcon }}</div>
+              <div style="width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#5C6678;">{{ usersIcon }}</div>
+              <div style="width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#5C6678;">{{ chartIcon }}</div>
+            </div>
+            <!-- Main content -->
+            <div style="flex:1;display:flex;flex-direction:column;background:#0A0F1E;min-width:0;position:relative;">
+              <!-- Click target to open panel -->
+              <div style="height:50px;flex:none;background:rgba(10,15,30,.9);border-bottom:1px solid #1A2336;display:flex;align-items:center;padding:0 16px;gap:10px;">
+                <div style="height:22px;width:150px;background:#1A2336;border-radius:6px;"></div>
+                <div style="margin-left:auto;display:flex;gap:6px;align-items:center;">
+                  <div style="width:30px;height:30px;border-radius:8px;background:#101728;border:1px solid #243049;"></div>
+                  <div style="width:30px;height:30px;border-radius:8px;background:#101728;border:1px solid #243049;display:flex;align-items:center;justify-content:center;color:#C9A84C;cursor:pointer;" onClick="{{ openNotif }}">{{ sparkIcon }}</div>
+                  <div style="position:relative;width:30px;height:30px;border-radius:8px;background:#101728;border:1px solid #243049;display:flex;align-items:center;justify-content:center;color:#8B95A8;cursor:pointer;" onClick="{{ openNotif }}">{{ bellIcon }}<sc-if value="{{ hasUnread }}"><span style="position:absolute;top:6px;right:7px;width:6px;height:6px;border-radius:50%;background:#EF4444;border:1.5px solid #101728;"></span></sc-if></div>
+                </div>
+              </div>
+              <div style="flex:1;padding:16px;overflow:hidden;display:flex;flex-direction:column;gap:12px;">
+                <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+                  <div style="background:#121A2B;border:1px solid #232E44;border-radius:10px;padding:13px;"><div style="height:9px;width:70px;background:#1A2336;border-radius:3px;margin-bottom:10px;"></div><div style="height:22px;width:42px;background:#232E44;border-radius:5px;"></div></div>
+                  <div style="background:#121A2B;border:1px solid rgba(245,158,11,.2);border-radius:10px;padding:13px;"><div style="height:9px;width:70px;background:#1A2336;border-radius:3px;margin-bottom:10px;"></div><div style="height:22px;width:32px;background:#232E44;border-radius:5px;"></div></div>
+                  <div style="background:#121A2B;border:1px solid #232E44;border-radius:10px;padding:13px;"><div style="height:9px;width:70px;background:#1A2336;border-radius:3px;margin-bottom:10px;"></div><div style="height:22px;width:52px;background:#232E44;border-radius:5px;"></div></div>
+                  <div style="background:#121A2B;border:1px solid #232E44;border-radius:10px;padding:13px;"><div style="height:9px;width:70px;background:#1A2336;border-radius:3px;margin-bottom:10px;"></div><div style="height:22px;width:38px;background:#232E44;border-radius:5px;"></div></div>
+                </div>
+                <div style="background:#101728;border:1px solid #232E44;border-radius:11px;overflow:hidden;flex:1;">
+                  <div style="height:40px;background:#121A2B;border-bottom:1px solid #1A2336;padding:0 14px;display:flex;align-items:center;"><div style="height:10px;width:100px;background:#1A2336;border-radius:3px;"></div><div style="height:10px;width:60px;background:#1A2336;border-radius:3px;margin-left:auto;"></div></div>
+                  <div style="padding:10px 14px;border-bottom:1px solid #161D30;display:flex;gap:12px;align-items:center;"><div style="height:9px;width:170px;background:#1A2336;border-radius:3px;"></div><div style="height:9px;width:80px;background:#1A2336;border-radius:3px;"></div><div style="height:9px;width:55px;background:#1A2336;border-radius:3px;margin-left:auto;"></div></div>
+                  <div style="padding:10px 14px;border-bottom:1px solid #161D30;display:flex;gap:12px;align-items:center;"><div style="height:9px;width:145px;background:#1A2336;border-radius:3px;"></div><div style="height:9px;width:80px;background:#1A2336;border-radius:3px;"></div><div style="height:9px;width:55px;background:#1A2336;border-radius:3px;margin-left:auto;"></div></div>
+                  <div style="padding:10px 14px;display:flex;gap:12px;align-items:center;"><div style="height:9px;width:130px;background:#1A2336;border-radius:3px;"></div><div style="height:9px;width:80px;background:#1A2336;border-radius:3px;"></div><div style="height:9px;width:55px;background:#1A2336;border-radius:3px;margin-left:auto;"></div></div>
+                </div>
+              </div>
+              <!-- Dim overlay sits INSIDE the content column -->
+              <sc-if value="{{ notifOpen }}">
+                <div onClick="{{ closeNotif }}" style="position:absolute;inset:0;background:rgba(3,6,16,.55);cursor:pointer;animation:dl-fade 160ms ease;"></div>
+              </sc-if>
+            </div>
+          </div>
+
+          <!-- RIGHT: Notification panel — flex sibling, always correct width -->
+          <sc-if value="{{ notifOpen }}">
+            <div style="width:374px;flex:none;background:#0B1020;border-left:1px solid #232E44;display:flex;flex-direction:column;animation:dl-sldr 220ms ease;overflow:hidden;" onClick="{{ stopProp }}">
+
+              <!-- Panel header -->
+              <div style="flex:none;padding:16px 16px 0;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;">
+                  <div style="display:flex;align-items:center;gap:9px;">
+                    <span style="font-family:'Source Serif 4',serif;font-weight:600;font-size:18px;color:#F4F1E6;">Notifications</span>
+                    <sc-if value="{{ hasUnread }}">
+                      <span style="display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:#EF4444;font-size:10.5px;font-weight:700;color:#fff;animation:dl-rise 200ms ease;">{{ unreadBadge }}</span>
+                    </sc-if>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:6px;">
+                    <sc-if value="{{ hasUnread }}">
+                      <button onClick="{{ markAllRead }}" style="display:flex;align-items:center;gap:5px;height:28px;padding:0 10px;border:1px solid #33415C;border-radius:7px;background:transparent;color:#8B95A8;font-family:Inter;font-size:11.5px;font-weight:600;cursor:pointer;" style-hover="color:#EDF1FB;border-color:#5C6678;">{{ checkIcon }} Mark all read</button>
+                    </sc-if>
+                    <sc-if value="{{ allRead }}">
+                      <span style="display:flex;align-items:center;gap:5px;font-size:11.5px;color:#10B981;font-weight:600;">{{ checkIcon }} All caught up</span>
+                    </sc-if>
+                    <button onClick="{{ closeNotif }}" style="width:28px;height:28px;border:none;border-radius:7px;background:transparent;color:#5C6678;display:flex;align-items:center;justify-content:center;cursor:pointer;" style-hover="color:#EDF1FB;background:#161D30;">{{ xIcon }}</button>
+                  </div>
+                </div>
+                <!-- Filter tabs -->
+                <div style="display:flex;gap:2px;background:#0A0F1E;border-radius:8px;padding:3px;margin-bottom:6px;">
+                  <button onClick="{{ setFilterAll }}" style="{{ notifAllTab }}">All <span style="{{ notifAllBadge }}">7</span></button>
+                  <button onClick="{{ setFilterUnread }}" style="{{ notifUnreadTab }}">Unread <sc-if value="{{ hasUnread }}"><span style="{{ notifUnreadBadgeStyle }}">{{ unreadBadge }}</span></sc-if></button>
+                </div>
+              </div>
+
+              <!-- List -->
+              <div style="flex:1;overflow-y:auto;overflow-x:hidden;">
+                <sc-for list="{{ notifGroups }}" as="grp" hint-placeholder-count="3">
+                  <div style="padding:7px 16px 3px;display:flex;align-items:center;gap:8px;">
+                    <span style="font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:#5C6678;font-weight:600;">{{ grp.label }}</span>
+                    <span style="flex:1;height:1px;background:#1A2336;"></span>
+                  </div>
+                  <sc-for list="{{ grp.items }}" as="n" hint-placeholder-count="3">
+                    <div onClick="{{ n.markRead }}" style="{{ n.rowStyle }}" style-hover="background:#0E1524;">
+                      <div style="{{ n.iconWrap }}">{{ n.iconEl }}</div>
+                      <div style="flex:1;min-width:0;">
+                        <div style="{{ n.titleStyle }}">{{ n.title }}</div>
+                        <div style="font-size:12px;color:#8B95A8;line-height:1.5;margin-top:3px;text-wrap:pretty;">{{ n.body }}</div>
+                        <div style="display:flex;align-items:center;gap:7px;margin-top:5px;">
+                          <span style="font-size:10.5px;color:#5C6678;">{{ n.time }}</span>
+                          <sc-if value="{{ n.isUnread }}">
+                            <span style="width:5px;height:5px;border-radius:50%;background:#3B82F6;flex:none;"></span>
+                            <span style="font-size:10px;color:#3B82F6;font-weight:600;">New</span>
+                          </sc-if>
+                        </div>
+                      </div>
+                    </div>
+                  </sc-for>
+                </sc-for>
+
+                <!-- Unread empty state -->
+                <sc-if value="{{ notifListEmpty }}">
+                  <div style="display:flex;flex-direction:column;align-items:center;padding:44px 20px;gap:11px;">
+                    <div style="width:44px;height:44px;border-radius:12px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);display:flex;align-items:center;justify-content:center;color:#10B981;">{{ checkIcon }}</div>
+                    <div style="font-size:14px;font-weight:600;color:#F4F1E6;">No unread notifications</div>
+                    <div style="font-size:12.5px;color:#8B95A8;text-align:center;">You're all caught up. New alerts appear here.</div>
+                  </div>
+                </sc-if>
+              </div>
+
+              <!-- Footer -->
+              <div style="flex:none;padding:11px 14px;border-top:1px solid #1A2336;">
+                <button style="width:100%;height:34px;border:1px solid #243049;border-radius:9px;background:transparent;color:#8B95A8;font-family:Inter;font-size:12.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;" style-hover="border-color:#33415C;color:#EDF1FB;">View full activity log →</button>
+              </div>
+            </div>
+          </sc-if>
+
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ══════════════════════════════════════ -->
+    <!-- 53 · COMMAND PALETTE                   -->
+    <!-- ══════════════════════════════════════ -->
+    <sc-if value="{{ isCmd }}">
+      <div style="position:absolute;inset:0;display:flex;flex-direction:column;">
+
+        <!-- Control bar -->
+        <div style="flex:none;padding:8px 20px;display:flex;align-items:center;gap:10px;background:#0A0F1E;border-bottom:1px solid #1A2336;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#5C6678;font-weight:600;letter-spacing:.08em;">53</span>
+          <span style="font-size:12px;font-weight:600;color:#8B95A8;">Command Palette</span>
+          <span style="flex:1;height:1px;background:#1A2336;"></span>
+          <sc-if value="{{ cmdOpen }}">
+            <button onClick="{{ closeCmd }}" style="display:flex;align-items:center;gap:5px;height:26px;padding:0 10px;border:1px solid #33415C;border-radius:6px;background:transparent;color:#8B95A8;font-family:Inter;font-size:11px;font-weight:600;cursor:pointer;" style-hover="color:#EDF1FB;">{{ xIcon }} Close</button>
+          </sc-if>
+          <sc-if value="{{ cmdClosed }}">
+            <button onClick="{{ openCmd }}" style="display:flex;align-items:center;gap:5px;height:26px;padding:0 10px;border:1px solid rgba(201,168,76,.4);border-radius:6px;background:transparent;color:#C9A84C;font-family:Inter;font-size:11px;font-weight:600;cursor:pointer;">{{ searchIcon }} Open palette (⌘K)</button>
+          </sc-if>
+          <span style="font-size:10.5px;color:#5C6678;font-style:italic;">Type to search, ↑↓ to navigate</span>
+        </div>
+
+        <!-- Simulation frame -->
+        <div style="flex:1;position:relative;min-height:0;margin:10px 20px 20px;overflow:hidden;border-radius:12px;">
+
+          <!-- Dimmed app background -->
+          <div style="position:absolute;inset:0;opacity:.28;border-radius:12px;overflow:hidden;border:1px solid #1A2336;display:flex;pointer-events:none;">
+            <div style="width:62px;flex:none;background:#0B1020;border-right:1px solid #1A2336;display:flex;flex-direction:column;align-items:center;padding:10px 0;gap:3px;">
+              <div style="width:30px;height:30px;border-radius:7px;background:linear-gradient(150deg,#C9A84C,#9c7f33);margin-bottom:8px;"></div>
+              <div style="width:36px;height:36px;border-radius:8px;background:#141B2E;"></div>
+              <div style="width:36px;height:36px;border-radius:8px;"></div>
+              <div style="width:36px;height:36px;border-radius:8px;"></div>
+            </div>
+            <div style="flex:1;background:#0A0F1E;display:flex;flex-direction:column;">
+              <div style="height:50px;background:rgba(10,15,30,.9);border-bottom:1px solid #1A2336;"></div>
+              <div style="flex:1;padding:16px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;align-content:start;">
+                <div style="background:#121A2B;border:1px solid #232E44;border-radius:10px;height:74px;"></div>
+                <div style="background:#121A2B;border:1px solid #232E44;border-radius:10px;height:74px;"></div>
+                <div style="background:#121A2B;border:1px solid #232E44;border-radius:10px;height:74px;"></div>
+                <div style="background:#121A2B;border:1px solid #232E44;border-radius:10px;height:74px;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Overlay + palette -->
+          <sc-if value="{{ cmdOpen }}">
+            <div onClick="{{ closeCmd }}" style="position:absolute;inset:0;background:rgba(2,4,14,.72);backdrop-filter:blur(3px);z-index:10;border-radius:12px;animation:dl-fade 160ms ease;">
+              <div onClick="{{ stopProp }}" style="position:absolute;top:13%;left:50%;transform:translateX(-50%);width:610px;background:#0E1524;border:1px solid #33415C;border-radius:16px;z-index:11;display:flex;flex-direction:column;box-shadow:0 28px 80px rgba(0,0,0,.65);overflow:hidden;animation:dl-scale 160ms ease;">
+
+                <!-- Search row -->
+                <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid #1A2336;">
+                  <span style="display:flex;color:#5C6678;flex:none;">{{ searchIcon }}</span>
+                  <input value="{{ cmdQuery }}" onChange="{{ onCmdInput }}" onKeyDown="{{ onCmdKey }}" placeholder="Search matters, documents, clients, AI tools…" style="flex:1;border:none;background:transparent;color:#EDF1FB;font-family:Inter;font-size:15px;outline:none;caret-color:#C9A84C;" />
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#5C6678;background:#141B2E;border:1px solid #243049;border-radius:5px;padding:2px 6px;flex:none;">Esc</span>
+                </div>
+
+                <!-- Results -->
+                <div style="overflow-y:auto;max-height:340px;padding:6px 6px;">
+
+                  <!-- No query: recent -->
+                  <sc-if value="{{ cmdNoQuery }}">
+                    <div style="padding:6px 10px 3px;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:#5C6678;font-weight:600;">Recent</div>
+                    <sc-for list="{{ recentActions }}" as="a" hint-placeholder-count="4">
+                      <div style="{{ a.rowStyle }}" style-hover="background:#141B2E;">
+                        <div style="{{ a.iconWrap }}">{{ a.iconEl }}</div>
+                        <div style="flex:1;min-width:0;">
+                          <div style="font-size:13.5px;color:#EDF1FB;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ a.label }}</div>
+                          <div style="font-size:11.5px;color:#5C6678;margin-top:1px;">{{ a.sub }}</div>
+                        </div>
+                        <span style="display:flex;color:#5C6678;flex:none;">{{ chevRIcon }}</span>
+                      </div>
+                    </sc-for>
+                  </sc-if>
+
+                  <!-- Has query: grouped results -->
+                  <sc-if value="{{ cmdHasQuery }}">
+                    <sc-for list="{{ searchGroups }}" as="sg" hint-placeholder-count="3">
+                      <div style="padding:6px 10px 3px;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:#5C6678;font-weight:600;">{{ sg.label }}</div>
+                      <sc-for list="{{ sg.items }}" as="item" hint-placeholder-count="2">
+                        <div style="{{ item.rowStyle }}" style-hover="background:#141B2E;">
+                          <div style="{{ item.iconWrap }}">{{ item.iconEl }}</div>
+                          <div style="flex:1;min-width:0;">
+                            <div style="font-size:13.5px;color:#EDF1FB;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ item.label }}</div>
+                            <div style="font-size:11.5px;color:#5C6678;margin-top:1px;">{{ item.sub }}</div>
+                          </div>
+                          <span style="display:flex;color:#5C6678;flex:none;">{{ chevRIcon }}</span>
+                        </div>
+                      </sc-for>
+                    </sc-for>
+                  </sc-if>
+
+                </div>
+
+                <!-- Keyboard hint bar -->
+                <div style="flex:none;padding:8px 14px;border-top:1px solid #1A2336;display:flex;align-items:center;gap:14px;">
+                  <span style="font-size:10.5px;color:#5C6678;display:flex;align-items:center;gap:5px;"><span style="background:#141B2E;border:1px solid #243049;border-radius:4px;padding:1px 5px;font-family:'JetBrains Mono',monospace;font-size:10px;">↑↓</span> Navigate</span>
+                  <span style="font-size:10.5px;color:#5C6678;display:flex;align-items:center;gap:5px;"><span style="background:#141B2E;border:1px solid #243049;border-radius:4px;padding:1px 5px;font-family:'JetBrains Mono',monospace;font-size:10px;">↵</span> Open</span>
+                  <span style="font-size:10.5px;color:#5C6678;display:flex;align-items:center;gap:5px;"><span style="background:#141B2E;border:1px solid #243049;border-radius:4px;padding:1px 5px;font-family:'JetBrains Mono',monospace;font-size:10px;">Esc</span> Close</span>
+                  <div style="flex:1;"></div>
+                  <span style="font-size:10.5px;color:#5C6678;display:flex;align-items:center;gap:5px;"><span style="background:#141B2E;border:1px solid #243049;border-radius:4px;padding:1px 6px;font-family:'JetBrains Mono',monospace;font-size:10px;">⌘K</span> anywhere</span>
+                </div>
+
+              </div>
+            </div>
+          </sc-if>
+
+          <!-- Closed hint -->
+          <sc-if value="{{ cmdClosed }}">
+            <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:12px;opacity:.5;">
+                <div style="width:48px;height:48px;border-radius:13px;background:#101728;border:1px solid #232E44;display:flex;align-items:center;justify-content:center;color:#8B95A8;">{{ searchIcon }}</div>
+                <span style="font-size:13px;color:#8B95A8;">Press <kbd style="font-family:'JetBrains Mono',monospace;background:#141B2E;border:1px solid #243049;border-radius:5px;padding:2px 7px;font-size:12px;">⌘K</kbd> to open the command palette</span>
+              </div>
+            </div>
+          </sc-if>
+
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ══════════════════════════════════════ -->
+    <!-- 54 · EMPTY STATES                      -->
+    <!-- ══════════════════════════════════════ -->
+    <sc-if value="{{ isEmpty }}">
+      <div style="position:absolute;inset:0;overflow-y:auto;padding:22px 26px 44px;">
+
+        <div style="display:flex;align-items:baseline;gap:11px;margin-bottom:20px;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#5C6678;font-weight:600;letter-spacing:.08em;">54</span>
+          <h2 style="margin:0;font-family:'Source Serif 4',serif;font-weight:600;font-size:21px;color:#F4F1E6;">Empty States</h2>
+          <span style="font-size:13px;color:#8B95A8;">Consistent, DeLaw-toned empty states for every list page</span>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+          <sc-for list="{{ emptyStates }}" as="es" hint-placeholder-count="6">
+            <div style="background:#101728;border:1px solid #232E44;border-radius:14px;overflow:hidden;display:flex;flex-direction:column;">
+              <div style="padding:8px 14px;background:#0B1020;border-bottom:1px solid #1A2336;">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#5C6678;font-weight:600;letter-spacing:.05em;">{{ es.badge }}</span>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;padding:38px 24px 32px;">
+                <div style="{{ es.iconBg }}">{{ es.iconEl }}</div>
+                <h3 style="margin:16px 0 8px;font-family:'Source Serif 4',serif;font-weight:600;font-size:17px;color:#F4F1E6;line-height:1.25;">{{ es.title }}</h3>
+                <p style="margin:0 0 22px;font-size:13px;color:#8B95A8;line-height:1.65;max-width:240px;">{{ es.desc }}</p>
+                <button style="{{ es.ctaStyle }}">{{ es.ctaIconEl }} {{ es.cta }}</button>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+
+      </div>
+    </sc-if>
+
+    <!-- ══════════════════════════════════════ -->
+    <!-- 55 · ERROR & SYSTEM STATES             -->
+    <!-- ══════════════════════════════════════ -->
+    <sc-if value="{{ isError }}">
+      <div style="position:absolute;inset:0;overflow-y:auto;padding:22px 26px 44px;">
+
+        <div style="display:flex;align-items:baseline;gap:11px;margin-bottom:20px;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#5C6678;font-weight:600;letter-spacing:.08em;">55</span>
+          <h2 style="margin:0;font-family:'Source Serif 4',serif;font-weight:600;font-size:21px;color:#F4F1E6;">Error &amp; System States</h2>
+        </div>
+
+        <!-- Error pages grid -->
+        <div style="font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:#5C6678;font-weight:600;margin-bottom:12px;">Error pages</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:32px;">
+          <sc-for list="{{ errorStates }}" as="er" hint-placeholder-count="6">
+            <div style="{{ er.cardStyle }}">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;">
+                <span style="{{ er.codeBadge }}">{{ er.code }}</span>
+                <div style="{{ er.iconWrap }}">{{ er.iconEl }}</div>
+              </div>
+              <h3 style="margin:0 0 8px;font-family:'Source Serif 4',serif;font-weight:600;font-size:18px;color:#F4F1E6;line-height:1.25;">{{ er.title }}</h3>
+              <p style="margin:0 0 20px;font-size:12.5px;color:#8B95A8;line-height:1.65;">{{ er.desc }}</p>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button style="{{ er.btn1Style }}">{{ er.cta1 }}</button>
+                <sc-if value="{{ er.hasCta2 }}">
+                  <button style="{{ er.btn2Style }}">{{ er.cta2 }}</button>
+                </sc-if>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+
+        <!-- Skeleton screens -->
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
+          <div style="font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:#5C6678;font-weight:600;">Loading skeleton screens</div>
+          <div style="display:flex;gap:6px;">
+            <sc-for list="{{ skTypes }}" as="sk" hint-placeholder-count="3">
+              <button onClick="{{ sk.on }}" style="{{ sk.style }}">{{ sk.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="background:#101728;border:1px solid #232E44;border-radius:14px;overflow:hidden;">
+
+          <!-- Dashboard skeleton -->
+          <sc-if value="{{ isSkelDash }}">
+            <div style="padding:22px;">
+              <div style="height:26px;width:260px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:7px;margin-bottom:8px;"></div>
+              <div style="height:13px;width:190px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:4px;margin-bottom:24px;"></div>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;">
+                <div style="background:#0E1524;border:1px solid #1A2336;border-radius:11px;padding:15px;"><div style="height:9px;width:75px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:3px;margin-bottom:13px;"></div><div style="height:26px;width:46px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:6px;"></div></div>
+                <div style="background:#0E1524;border:1px solid #1A2336;border-radius:11px;padding:15px;"><div style="height:9px;width:75px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:3px;margin-bottom:13px;"></div><div style="height:26px;width:36px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:6px;"></div></div>
+                <div style="background:#0E1524;border:1px solid #1A2336;border-radius:11px;padding:15px;"><div style="height:9px;width:75px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:3px;margin-bottom:13px;"></div><div style="height:26px;width:56px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:6px;"></div></div>
+                <div style="background:#0E1524;border:1px solid #1A2336;border-radius:11px;padding:15px;"><div style="height:9px;width:75px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:3px;margin-bottom:13px;"></div><div style="height:26px;width:42px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:6px;"></div></div>
+              </div>
+              <div style="background:#0E1524;border:1px solid #1A2336;border-radius:11px;overflow:hidden;">
+                <div style="height:42px;background:#0B1020;border-bottom:1px solid #1A2336;padding:0 16px;display:flex;align-items:center;"><div style="height:11px;width:120px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:3px;"></div></div>
+                <div style="padding:13px 16px;border-bottom:1px solid #161D30;display:flex;gap:12px;align-items:center;"><div style="height:10px;width:190px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:3px;"></div><div style="height:10px;width:80px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:3px;"></div><div style="height:20px;width:58px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:20px;margin-left:auto;"></div></div>
+                <div style="padding:13px 16px;border-bottom:1px solid #161D30;display:flex;gap:12px;align-items:center;"><div style="height:10px;width:165px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:3px;"></div><div style="height:10px;width:80px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:3px;"></div><div style="height:20px;width:58px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:20px;margin-left:auto;"></div></div>
+                <div style="padding:13px 16px;display:flex;gap:12px;align-items:center;"><div style="height:10px;width:145px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:3px;"></div><div style="height:10px;width:80px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:3px;"></div><div style="height:20px;width:58px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:20px;margin-left:auto;"></div></div>
+              </div>
+            </div>
+          </sc-if>
+
+          <!-- Matter detail skeleton -->
+          <sc-if value="{{ isSkelMatter }}">
+            <div style="display:flex;min-height:360px;">
+              <div style="flex:1;padding:22px;border-right:1px solid #1A2336;min-width:0;">
+                <div style="height:13px;width:90px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:3px;margin-bottom:11px;"></div>
+                <div style="height:28px;width:310px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:7px;margin-bottom:8px;"></div>
+                <div style="height:13px;width:170px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:3px;margin-bottom:22px;"></div>
+                <div style="display:flex;gap:16px;border-bottom:1px solid #1A2336;margin-bottom:20px;padding-bottom:0;">
+                  <div style="height:34px;width:78px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:4px;"></div>
+                  <div style="height:34px;width:78px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:4px;"></div>
+                  <div style="height:34px;width:78px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:4px;"></div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:12px;">
+                  <div style="height:62px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:10px;"></div>
+                  <div style="height:62px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:10px;"></div>
+                  <div style="height:62px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:10px;"></div>
+                </div>
+              </div>
+              <div style="width:280px;flex:none;padding:22px;display:flex;flex-direction:column;gap:14px;">
+                <div style="height:10px;width:80px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:3px;"></div>
+                <div style="height:88px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:11px;"></div>
+                <div style="height:10px;width:80px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:3px;"></div>
+                <div style="height:88px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:11px;"></div>
+                <div style="height:36px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:10px;margin-top:auto;"></div>
+              </div>
+            </div>
+          </sc-if>
+
+          <!-- Document list skeleton -->
+          <sc-if value="{{ isSkelDocs }}">
+            <div style="padding:22px;">
+              <div style="display:flex;gap:10px;margin-bottom:18px;align-items:center;">
+                <div style="height:32px;width:260px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:9px;"></div>
+                <div style="height:32px;width:84px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:9px;"></div>
+                <div style="height:32px;width:96px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:9px;margin-left:auto;"></div>
+              </div>
+              <div style="background:#0E1524;border:1px solid #1A2336;border-radius:11px;overflow:hidden;">
+                <div style="height:40px;background:#0B1020;border-bottom:1px solid #1A2336;padding:0 16px;display:flex;align-items:center;gap:10px;"><div style="height:10px;width:16px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:3px;"></div><div style="height:10px;width:80px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:3px;"></div></div>
+                <div style="padding:11px 16px;border-bottom:1px solid #161D30;display:flex;gap:12px;align-items:center;"><div style="height:18px;width:18px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:4px;"></div><div style="height:34px;width:34px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:8px;"></div><div style="flex:1;display:flex;flex-direction:column;gap:6px;"><div style="height:11px;width:215px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:3px;"></div><div style="height:9px;width:120px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:3px;"></div></div><div style="height:20px;width:58px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:5px;"></div></div>
+                <div style="padding:11px 16px;border-bottom:1px solid #161D30;display:flex;gap:12px;align-items:center;"><div style="height:18px;width:18px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:4px;"></div><div style="height:34px;width:34px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:8px;"></div><div style="flex:1;display:flex;flex-direction:column;gap:6px;"><div style="height:11px;width:185px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:3px;"></div><div style="height:9px;width:100px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:3px;"></div></div><div style="height:20px;width:58px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:5px;"></div></div>
+                <div style="padding:11px 16px;display:flex;gap:12px;align-items:center;"><div style="height:18px;width:18px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:4px;"></div><div style="height:34px;width:34px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:8px;"></div><div style="flex:1;display:flex;flex-direction:column;gap:6px;"><div style="height:11px;width:200px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:3px;"></div><div style="height:9px;width:110px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:3px;"></div></div><div style="height:20px;width:58px;background:linear-gradient(90deg,#1A2336 25%,#232E44 50%,#1A2336 75%);background-size:700px 100%;animation:shimmer 1.6s ease-in-out infinite;border-radius:5px;"></div></div>
+              </div>
+            </div>
+          </sc-if>
+
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ══════════════════════════════════════ -->
+    <!-- 56 · MOBILE PATTERNS                   -->
+    <!-- ══════════════════════════════════════ -->
+    <sc-if value="{{ isMobile }}">
+      <div style="position:absolute;inset:0;display:flex;flex-direction:column;">
+
+        <div style="flex:none;padding:14px 26px 10px;border-bottom:1px solid #1A2336;display:flex;align-items:baseline;gap:11px;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#5C6678;font-weight:600;letter-spacing:.08em;">56</span>
+          <h2 style="margin:0;font-family:'Source Serif 4',serif;font-weight:600;font-size:21px;color:#F4F1E6;">Mobile Responsive Patterns</h2>
+          <span style="font-size:13px;color:#8B95A8;">375px viewport · core interactions</span>
+        </div>
+
+        <div style="flex:1;overflow-x:auto;overflow-y:hidden;padding:28px 26px;">
+          <div style="display:flex;gap:28px;align-items:flex-start;min-width:max-content;">
+
+            <!-- PHONE 1: Bottom Nav -->
+            <div style="display:flex;flex-direction:column;align-items:center;gap:11px;flex:none;">
+              <span style="font-size:11px;font-weight:600;color:#8B95A8;">Bottom Navigation</span>
+              <div style="width:276px;border-radius:42px;background:#000;border:2px solid #2A3548;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.55);">
+                <div style="height:38px;background:#000;display:flex;align-items:center;padding:0 20px;justify-content:space-between;">
+                  <span style="font-size:12px;font-weight:700;color:#fff;font-family:'JetBrains Mono',monospace;">9:41</span>
+                  <div style="display:flex;align-items:center;gap:5px;">
+                    <div style="display:flex;gap:1.5px;align-items:flex-end;height:10px;"><div style="width:3px;height:4px;background:#fff;border-radius:1px;opacity:.5;"></div><div style="width:3px;height:6px;background:#fff;border-radius:1px;opacity:.7;"></div><div style="width:3px;height:8px;background:#fff;border-radius:1px;"></div><div style="width:3px;height:10px;background:#fff;border-radius:1px;"></div></div>
+                    <div style="width:20px;height:10px;border:1.5px solid #fff;border-radius:2px;position:relative;margin-left:2px;"><div style="position:absolute;top:1.5px;bottom:1.5px;left:1.5px;right:3px;background:#fff;border-radius:1px;"></div><div style="position:absolute;right:-3px;top:2px;height:5px;width:2px;background:#fff;border-radius:1px;"></div></div>
+                  </div>
+                </div>
+                <div style="background:#0A0F1E;">
+                  <div style="height:46px;background:rgba(10,15,30,.9);border-bottom:1px solid #1A2336;display:flex;align-items:center;padding:0 13px;justify-content:space-between;">
+                    <div style="display:flex;align-items:center;gap:7px;"><div style="width:24px;height:24px;border-radius:6px;background:linear-gradient(150deg,#C9A84C,#9c7f33);display:flex;align-items:center;justify-content:center;"><span style="font-family:'Source Serif 4',serif;font-weight:700;font-size:13px;color:#0A0F1E;">D</span></div><span style="font-family:'Source Serif 4',serif;font-weight:700;font-size:14px;color:#F4F1E6;">DeLaw</span></div>
+                    <div style="position:relative;width:26px;height:26px;border-radius:7px;background:#101728;border:1px solid #243049;display:flex;align-items:center;justify-content:center;color:#8B95A8;">{{ bellIcon }}<span style="position:absolute;top:5px;right:6px;width:5px;height:5px;border-radius:50%;background:#EF4444;border:1px solid #101728;"></span></div>
+                  </div>
+                  <div style="padding:14px 13px;min-height:380px;">
+                    <div style="font-family:'Source Serif 4',serif;font-weight:600;font-size:15px;color:#F4F1E6;margin-bottom:3px;">Good morning, Babatunde</div>
+                    <div style="font-size:10.5px;color:#8B95A8;margin-bottom:13px;">2 filings due this week</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:11px;">
+                      <div style="background:#121A2B;border:1px solid #232E44;border-radius:9px;padding:11px;"><div style="font-size:9px;color:#8B95A8;margin-bottom:5px;">Active Matters</div><div style="font-family:'Source Serif 4',serif;font-weight:600;font-size:22px;color:#F4F1E6;">24</div></div>
+                      <div style="background:#121A2B;border:1px solid rgba(245,158,11,.25);border-radius:9px;padding:11px;"><div style="font-size:9px;color:#8B95A8;margin-bottom:5px;">Deadlines</div><div style="font-family:'Source Serif 4',serif;font-weight:600;font-size:22px;color:#F59E0B;">7</div></div>
+                    </div>
+                    <div style="background:#121A2B;border:1px solid rgba(239,68,68,.25);border-radius:9px;padding:11px 12px;"><div style="font-size:9px;color:#EF4444;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">Urgent</div><div style="font-family:'Source Serif 4',serif;font-weight:600;font-size:12.5px;color:#F4F1E6;line-height:1.3;">Adeleke v. Sterling Oil &amp; Gas</div><div style="font-size:10px;color:#EF4444;font-weight:600;margin-top:4px;">Motion due in 48 hours</div></div>
+                  </div>
+                  <!-- Bottom nav bar -->
+                  <div style="height:64px;background:#0B1020;border-top:1px solid #1A2336;display:flex;align-items:flex-start;padding-top:8px;">
+                    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;"><div style="width:22px;height:22px;display:flex;align-items:center;justify-content:center;color:#C9A84C;">{{ homeIcon }}</div><span style="font-size:9.5px;color:#C9A84C;font-weight:600;">Home</span></div>
+                    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;"><div style="width:22px;height:22px;display:flex;align-items:center;justify-content:center;color:#5C6678;">{{ briefIcon }}</div><span style="font-size:9.5px;color:#5C6678;">Matters</span></div>
+                    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;"><div style="width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#D4B25E,#C9A84C);display:flex;align-items:center;justify-content:center;color:#1a1404;margin-top:-14px;box-shadow:0 4px 14px rgba(201,168,76,.4);">{{ sparkIcon }}</div><span style="font-size:9.5px;color:#8B95A8;margin-top:2px;">AI</span></div>
+                    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;"><div style="width:22px;height:22px;display:flex;align-items:center;justify-content:center;color:#5C6678;">{{ fileIcon }}</div><span style="font-size:9.5px;color:#5C6678;">Docs</span></div>
+                    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;"><div style="width:22px;height:22px;display:flex;align-items:center;justify-content:center;color:#5C6678;">{{ moreIcon }}</div><span style="font-size:9.5px;color:#5C6678;">More</span></div>
+                  </div>
+                </div>
+                <div style="height:26px;background:#000;display:flex;align-items:center;justify-content:center;"><div style="width:100px;height:4px;background:#fff;border-radius:2px;opacity:.3;"></div></div>
+              </div>
+            </div>
+
+            <!-- PHONE 2: Log Time Sheet -->
+            <div style="display:flex;flex-direction:column;align-items:center;gap:11px;flex:none;">
+              <span style="font-size:11px;font-weight:600;color:#8B95A8;">Log Time (Bottom Sheet)</span>
+              <div style="width:276px;border-radius:42px;background:#000;border:2px solid #2A3548;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.55);">
+                <div style="height:38px;background:#000;display:flex;align-items:center;padding:0 20px;justify-content:space-between;"><span style="font-size:12px;font-weight:700;color:#fff;font-family:'JetBrains Mono',monospace;">9:41</span><div style="width:50px;height:10px;background:#fff;border-radius:5px;opacity:.8;"></div></div>
+                <div style="background:#0A0F1E;position:relative;min-height:466px;overflow:hidden;">
+                  <!-- Dim background -->
+                  <div style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:1;"></div>
+                  <!-- Background app content hint -->
+                  <div style="padding:14px 13px;opacity:.4;"><div style="height:14px;width:160px;background:#1A2336;border-radius:4px;margin-bottom:10px;"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"><div style="background:#121A2B;border-radius:9px;height:68px;"></div><div style="background:#121A2B;border-radius:9px;height:68px;"></div></div></div>
+                  <!-- Bottom sheet -->
+                  <div style="position:absolute;bottom:0;left:0;right:0;z-index:2;background:#101728;border-radius:20px 20px 0 0;border-top:1px solid #232E44;padding:14px 16px 20px;">
+                    <div style="width:36px;height:4px;background:#33415C;border-radius:2px;margin:0 auto 16px;"></div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;"><span style="font-family:'Source Serif 4',serif;font-weight:600;font-size:17px;color:#F4F1E6;">Log Time</span><div style="width:24px;height:24px;border-radius:6px;background:#1A2336;display:flex;align-items:center;justify-content:center;color:#8B95A8;cursor:pointer;">{{ xIcon }}</div></div>
+                    <!-- Matter selector -->
+                    <div style="margin-bottom:11px;">
+                      <div style="font-size:11px;font-weight:600;color:#8B95A8;margin-bottom:5px;">Matter</div>
+                      <div style="height:38px;background:#0C1120;border:1px solid #243049;border-radius:9px;padding:0 11px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;"><span style="font-size:12.5px;color:#EDF1FB;font-weight:500;">Adeleke v. Sterling Oil</span><span style="color:#5C6678;display:flex;">{{ chevRIcon }}</span></div>
+                    </div>
+                    <!-- Activity type -->
+                    <div style="margin-bottom:11px;">
+                      <div style="font-size:11px;font-weight:600;color:#8B95A8;margin-bottom:5px;">Activity</div>
+                      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                        <span style="height:28px;padding:0 10px;border-radius:7px;background:#C9A84C;color:#1a1404;font-size:11.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;">Court appearance</span>
+                        <span style="height:28px;padding:0 10px;border-radius:7px;background:#101728;border:1px solid #33415C;color:#8B95A8;font-size:11.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;">Research</span>
+                        <span style="height:28px;padding:0 10px;border-radius:7px;background:#101728;border:1px solid #33415C;color:#8B95A8;font-size:11.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;">Drafting</span>
+                      </div>
+                    </div>
+                    <!-- Duration -->
+                    <div style="margin-bottom:14px;">
+                      <div style="font-size:11px;font-weight:600;color:#8B95A8;margin-bottom:5px;">Duration</div>
+                      <div style="height:38px;background:#0C1120;border:1px solid #C9A84C;border-radius:9px;padding:0 11px;display:flex;align-items:center;justify-content:space-between;"><span style="font-family:'Source Serif 4',serif;font-size:16px;font-weight:600;color:#F4F1E6;">4.5 hrs</span><span style="font-size:11px;color:#7d6a3c;font-weight:600;">≈ ₦112,500</span></div>
+                    </div>
+                    <button style="width:100%;height:42px;border:none;border-radius:11px;background:linear-gradient(135deg,#D4B25E,#C9A84C);color:#1a1404;font-family:Inter;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 3px 14px rgba(201,168,76,.3);">Log Time</button>
+                  </div>
+                </div>
+                <div style="height:26px;background:#000;display:flex;align-items:center;justify-content:center;"><div style="width:100px;height:4px;background:#fff;border-radius:2px;opacity:.3;"></div></div>
+              </div>
+            </div>
+
+            <!-- PHONE 3: Matter Status -->
+            <div style="display:flex;flex-direction:column;align-items:center;gap:11px;flex:none;">
+              <span style="font-size:11px;font-weight:600;color:#8B95A8;">Matter Status View</span>
+              <div style="width:276px;border-radius:42px;background:#000;border:2px solid #2A3548;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.55);">
+                <div style="height:38px;background:#000;display:flex;align-items:center;padding:0 20px;justify-content:space-between;"><span style="font-size:12px;font-weight:700;color:#fff;font-family:'JetBrains Mono',monospace;">9:41</span><div style="width:50px;height:10px;background:#fff;border-radius:5px;opacity:.8;"></div></div>
+                <div style="background:#0A0F1E;min-height:466px;display:flex;flex-direction:column;">
+                  <!-- Header -->
+                  <div style="height:46px;background:rgba(10,15,30,.9);border-bottom:1px solid #1A2336;display:flex;align-items:center;padding:0 13px;gap:9px;">
+                    <div style="display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:7px;background:#141B2E;color:#8B95A8;cursor:pointer;">{{ arrowLIcon }}</div>
+                    <span style="font-size:13px;font-weight:600;color:#EDF1FB;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Matters</span>
+                  </div>
+                  <!-- Matter header -->
+                  <div style="padding:14px 13px 12px;border-bottom:1px solid #1A2336;">
+                    <div style="display:inline-flex;align-items:center;font-size:9.5px;font-weight:700;color:#F59E0B;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3);padding:2px 8px;border-radius:20px;margin-bottom:8px;">IN COURT</div>
+                    <div style="font-family:'Source Serif 4',serif;font-weight:600;font-size:14px;color:#F4F1E6;line-height:1.3;margin-bottom:4px;">Reg. Trustees, LCCI v. AG Lagos State</div>
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#C9A84C;">FHC/L/CS/123/2025</div>
+                  </div>
+                  <!-- Key info -->
+                  <div style="padding:12px 13px;display:flex;flex-direction:column;gap:9px;border-bottom:1px solid #1A2336;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:11px;color:#5C6678;font-weight:500;">Client</span><span style="font-size:12px;color:#EDF1FB;font-weight:600;">LCCI</span></div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:11px;color:#5C6678;font-weight:500;">Court</span><span style="font-size:12px;color:#EDF1FB;font-weight:600;">Federal HC, Lagos</span></div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:11px;color:#5C6678;font-weight:500;">Next filing</span><span style="font-size:12px;color:#EF4444;font-weight:700;">3 days</span></div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;"><span style="font-size:11px;color:#5C6678;font-weight:500;">Lead counsel</span><span style="font-size:12px;color:#EDF1FB;font-weight:600;">B. Fashola SAN</span></div>
+                  </div>
+                  <!-- Quick actions -->
+                  <div style="padding:12px 13px;display:flex;gap:7px;">
+                    <button style="flex:1;height:34px;border:none;border-radius:9px;background:linear-gradient(135deg,#D4B25E,#C9A84C);color:#1a1404;font-family:Inter;font-size:11.5px;font-weight:700;cursor:pointer;">Log time</button>
+                    <button style="flex:1;height:34px;border:1px solid #33415C;border-radius:9px;background:transparent;color:#EDF1FB;font-family:Inter;font-size:11.5px;font-weight:600;cursor:pointer;">Documents</button>
+                    <button style="width:34px;height:34px;border:1px solid #33415C;border-radius:9px;background:transparent;color:#C9A84C;font-family:Inter;cursor:pointer;display:flex;align-items:center;justify-content:center;">{{ sparkIcon }}</button>
+                  </div>
+                  <!-- Activity -->
+                  <div style="padding:4px 13px 14px;">
+                    <div style="font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:#5C6678;font-weight:600;margin-bottom:9px;">Recent activity</div>
+                    <div style="display:flex;flex-direction:column;gap:8px;">
+                      <div style="display:flex;gap:9px;align-items:flex-start;"><div style="width:6px;height:6px;border-radius:50%;background:#C9A84C;flex:none;margin-top:5px;"></div><div><div style="font-size:11.5px;color:#C7D0E0;line-height:1.4;">N. Okonkwo logged 4.5 hrs</div><div style="font-size:10px;color:#5C6678;margin-top:1px;">Today, 09:14</div></div></div>
+                      <div style="display:flex;gap:9px;align-items:flex-start;"><div style="width:6px;height:6px;border-radius:50%;background:#1A2336;flex:none;margin-top:5px;"></div><div><div style="font-size:11.5px;color:#C7D0E0;line-height:1.4;">Draft brief uploaded</div><div style="font-size:10px;color:#5C6678;margin-top:1px;">Yesterday, 16:40</div></div></div>
+                    </div>
+                  </div>
+                </div>
+                <div style="height:26px;background:#000;display:flex;align-items:center;justify-content:center;"><div style="width:100px;height:4px;background:#fff;border-radius:2px;opacity:.3;"></div></div>
+              </div>
+            </div>
+
+            <!-- PHONE 4: AI Summary -->
+            <div style="display:flex;flex-direction:column;align-items:center;gap:11px;flex:none;">
+              <span style="font-size:11px;font-weight:600;color:#8B95A8;">AI Summary (Mobile)</span>
+              <div style="width:276px;border-radius:42px;background:#000;border:2px solid #2A3548;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.55);">
+                <div style="height:38px;background:#000;display:flex;align-items:center;padding:0 20px;justify-content:space-between;"><span style="font-size:12px;font-weight:700;color:#fff;font-family:'JetBrains Mono',monospace;">9:41</span><div style="width:50px;height:10px;background:#fff;border-radius:5px;opacity:.8;"></div></div>
+                <div style="background:#0A0F1E;display:flex;flex-direction:column;min-height:466px;">
+                  <div style="height:46px;background:rgba(10,15,30,.9);border-bottom:1px solid #1A2336;display:flex;align-items:center;padding:0 13px;gap:8px;">
+                    <div style="width:26px;height:26px;border-radius:7px;background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.3);display:flex;align-items:center;justify-content:center;color:#C9A84C;">{{ sparkIcon }}</div>
+                    <span style="font-size:13px;font-weight:600;color:#F4F1E6;">DeLaw AI</span>
+                  </div>
+                  <div style="flex:1;padding:13px;overflow:hidden;">
+                    <!-- User message -->
+                    <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+                      <div style="max-width:190px;background:#1A2336;border-radius:11px 11px 3px 11px;padding:9px 11px;font-size:12.5px;color:#EDF1FB;line-height:1.5;">Summarise key issues in LCCI v. AG Lagos State</div>
+                    </div>
+                    <!-- AI response -->
+                    <div style="background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.2);border-radius:3px 11px 11px 11px;padding:11px;margin-bottom:12px;">
+                      <div style="display:flex;align-items:center;gap:6px;margin-bottom:9px;font-size:10.5px;font-weight:700;color:#C9A84C;letter-spacing:.04em;">{{ sparkIcon }} DELAW AI</div>
+                      <div style="font-size:12px;color:#C7D0E0;line-height:1.6;margin-bottom:9px;">The core issue is whether the Governor can revoke a right of occupancy under s.28 LUA for a purpose not covered by s.51.</div>
+                      <div style="background:#0C1120;border:1px solid #1A2336;border-radius:8px;padding:8px 10px;margin-bottom:8px;">
+                        <div style="font-size:10px;font-weight:600;color:#8B95A8;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em;">Key holding</div>
+                        <div style="font-size:11.5px;color:#F4F1E6;font-family:'Source Serif 4',serif;line-height:1.5;">Acquisition for a private purpose is ultra vires — Bello v. AG Oyo State applies.</div>
+                      </div>
+                      <div style="font-size:10.5px;color:#7d6a3c;font-weight:600;display:flex;align-items:center;gap:5px;">{{ checkIcon }} 4 authorities verified</div>
+                    </div>
+                  </div>
+                  <!-- Input area -->
+                  <div style="flex:none;padding:10px 12px;border-top:1px solid #1A2336;background:#0B1020;display:flex;gap:8px;align-items:center;">
+                    <div style="flex:1;height:36px;background:#0C1120;border:1px solid #243049;border-radius:10px;display:flex;align-items:center;padding:0 11px;"><span style="font-size:12.5px;color:#5C6678;">Ask a follow-up…</span></div>
+                    <div style="width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#D4B25E,#C9A84C);display:flex;align-items:center;justify-content:center;color:#1a1404;cursor:pointer;">{{ arrowRIcon }}</div>
+                  </div>
+                </div>
+                <div style="height:26px;background:#000;display:flex;align-items:center;justify-content:center;"><div style="width:100px;height:4px;background:#fff;border-radius:2px;opacity:.3;"></div></div>
+              </div>
+            </div>
+
+            <!-- PHONE 5: Notifications Mobile -->
+            <div style="display:flex;flex-direction:column;align-items:center;gap:11px;flex:none;">
+              <span style="font-size:11px;font-weight:600;color:#8B95A8;">Notifications (Mobile)</span>
+              <div style="width:276px;border-radius:42px;background:#000;border:2px solid #2A3548;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.55);">
+                <div style="height:38px;background:#000;display:flex;align-items:center;padding:0 20px;justify-content:space-between;"><span style="font-size:12px;font-weight:700;color:#fff;font-family:'JetBrains Mono',monospace;">9:41</span><div style="width:50px;height:10px;background:#fff;border-radius:5px;opacity:.8;"></div></div>
+                <div style="background:#0A0F1E;min-height:466px;">
+                  <div style="height:46px;background:rgba(10,15,30,.9);border-bottom:1px solid #1A2336;display:flex;align-items:center;padding:0 13px;justify-content:space-between;">
+                    <span style="font-family:'Source Serif 4',serif;font-weight:600;font-size:16px;color:#F4F1E6;">Notifications</span>
+                    <div style="display:flex;align-items:center;gap:7px;"><span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:9px;background:#EF4444;font-size:9.5px;font-weight:700;color:#fff;">4</span><span style="font-size:11.5px;color:#C9A84C;font-weight:600;">Mark all read</span></div>
+                  </div>
+                  <!-- Group: Today -->
+                  <div style="padding:8px 13px 4px;display:flex;align-items:center;gap:7px;"><span style="font-size:9.5px;text-transform:uppercase;letter-spacing:.07em;color:#5C6678;font-weight:600;">Today</span><span style="flex:1;height:1px;background:#1A2336;"></span></div>
+                  <div style="border-left:3px solid #EF4444;padding:10px 13px 10px 12px;border-bottom:1px solid #1A2336;background:rgba(59,130,246,.03);">
+                    <div style="display:flex;gap:9px;align-items:flex-start;">
+                      <div style="width:32px;height:32px;border-radius:9px;background:rgba(239,68,68,.12);display:flex;align-items:center;justify-content:center;color:#EF4444;flex:none;">{{ clockIcon }}</div>
+                      <div style="flex:1;min-width:0;">
+                        <div style="font-size:12px;font-weight:600;color:#EDF1FB;line-height:1.3;">Deadline in 48 hours</div>
+                        <div style="font-size:11px;color:#8B95A8;line-height:1.4;margin-top:2px;">Motion — Adeleke v. Sterling Oil must be filed by Monday.</div>
+                        <div style="display:flex;align-items:center;gap:6px;margin-top:5px;"><span style="font-size:10px;color:#5C6678;">9:41 AM</span><span style="width:5px;height:5px;border-radius:50%;background:#3B82F6;"></span><span style="font-size:9.5px;color:#3B82F6;font-weight:600;">New</span></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div style="border-left:3px solid #3B82F6;padding:10px 13px 10px 12px;border-bottom:1px solid #1A2336;background:rgba(59,130,246,.03);">
+                    <div style="display:flex;gap:9px;align-items:flex-start;">
+                      <div style="width:32px;height:32px;border-radius:9px;background:rgba(59,130,246,.12);display:flex;align-items:center;justify-content:center;color:#3B82F6;flex:none;">{{ userIcon }}</div>
+                      <div style="flex:1;min-width:0;">
+                        <div style="font-size:12px;font-weight:600;color:#EDF1FB;line-height:1.3;">New matter assigned</div>
+                        <div style="font-size:11px;color:#8B95A8;line-height:1.4;margin-top:2px;">Added as lead associate on Zenith Bank v. Oceanic.</div>
+                        <div style="display:flex;align-items:center;gap:6px;margin-top:5px;"><span style="font-size:10px;color:#5C6678;">8:22 AM</span><span style="width:5px;height:5px;border-radius:50%;background:#3B82F6;"></span><span style="font-size:9.5px;color:#3B82F6;font-weight:600;">New</span></div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Group: Yesterday -->
+                  <div style="padding:8px 13px 4px;display:flex;align-items:center;gap:7px;"><span style="font-size:9.5px;text-transform:uppercase;letter-spacing:.07em;color:#5C6678;font-weight:600;">Yesterday</span><span style="flex:1;height:1px;background:#1A2336;"></span></div>
+                  <div style="border-left:3px solid transparent;padding:10px 13px 10px 12px;border-bottom:1px solid #1A2336;">
+                    <div style="display:flex;gap:9px;align-items:flex-start;">
+                      <div style="width:32px;height:32px;border-radius:9px;background:rgba(16,185,129,.1);display:flex;align-items:center;justify-content:center;color:#10B981;flex:none;">{{ fileIcon }}</div>
+                      <div style="flex:1;min-width:0;">
+                        <div style="font-size:12px;font-weight:500;color:#8B95A8;line-height:1.3;">Document shared with you</div>
+                        <div style="font-size:11px;color:#5C6678;line-height:1.4;margin-top:2px;">Draft Statement of Claim — Adeleke v. Sterling</div>
+                        <span style="font-size:10px;color:#5C6678;margin-top:5px;display:block;">4:12 PM</span>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Earlier -->
+                  <div style="padding:8px 13px 4px;display:flex;align-items:center;gap:7px;"><span style="font-size:9.5px;text-transform:uppercase;letter-spacing:.07em;color:#5C6678;font-weight:600;">Earlier</span><span style="flex:1;height:1px;background:#1A2336;"></span></div>
+                  <div style="border-left:3px solid #F59E0B;padding:10px 13px 10px 12px;background:rgba(59,130,246,.02);">
+                    <div style="display:flex;gap:9px;align-items:flex-start;">
+                      <div style="width:32px;height:32px;border-radius:9px;background:rgba(245,158,11,.1);display:flex;align-items:center;justify-content:center;color:#F59E0B;flex:none;">{{ warnIcon }}</div>
+                      <div style="flex:1;min-width:0;">
+                        <div style="font-size:12px;font-weight:600;color:#EDF1FB;line-height:1.3;">Overruled authority detected</div>
+                        <div style="font-size:11px;color:#8B95A8;line-height:1.4;margin-top:2px;">Lakanmi v. AG (West) — used in 2 documents.</div>
+                        <div style="display:flex;align-items:center;gap:6px;margin-top:5px;"><span style="font-size:10px;color:#5C6678;">18 Jun</span><span style="width:5px;height:5px;border-radius:50%;background:#3B82F6;"></span><span style="font-size:9.5px;color:#3B82F6;font-weight:600;">New</span></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div style="height:26px;background:#000;display:flex;align-items:center;justify-content:center;"><div style="width:100px;height:4px;background:#fff;border-radius:2px;opacity:.3;"></div></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+  </div>
+
+  <!-- TOAST -->
+  <sc-if value="{{ toastOpen }}">
+    <div style="{{ toastStyle }}">{{ toastMsg }}</div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;$preview&quot;: { &quot;width&quot;: 1440, &quot;height&quot;: 900 },
+  &quot;defaultView&quot;: { &quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;notif&quot;,&quot;cmd&quot;,&quot;empty&quot;,&quot;error&quot;,&quot;mobile&quot;], &quot;default&quot;: &quot;notif&quot;, &quot;tsType&quot;: &quot;string&quot; }
+}">
+class Component extends DCLogic {
+  state = {
+    view: 'notif',
+    notifOpen: true,
+    allRead: false,
+    notifRead: {},
+    notifFilter: 'all',
+    cmdOpen: true,
+    cmdQuery: '',
+    skelType: 'dashboard',
+    toast: null,
+  };
+
+  _toastTimer = null;
+
+  showToast(msg, type = 'ok') {
+    if (this._toastTimer) clearTimeout(this._toastTimer);
+    this.setState({ toast: { msg, type } });
+    this._toastTimer = setTimeout(() => this.setState({ toast: null }), 3000);
+  }
+
+  icon(name, sz = 16) {
+    const s = sz;
+    const map = {
+      bell: `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>`,
+      clock: `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+      user: `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+      file: `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`,
+      sparkles: `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.912 5.813a2 2 0 0 0 1.275 1.275L21 12l-5.813 1.912a2 2 0 0 0-1.275 1.275L12 21l-1.912-5.813a2 2 0 0 0-1.275-1.275L3 12l5.813-1.912a2 2 0 0 0 1.275-1.275L12 3z"/></svg>`,
+      receipt: `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1z"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="16" y2="14"/></svg>`,
+      warning: `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+      check: `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+      x: `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+      search: `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`,
+      briefcase: `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>`,
+      home: `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
+      users: `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+      chart: `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`,
+      plus: `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+      workflow: `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="5" height="5" rx="1"/><rect x="16" y="3" width="5" height="5" rx="1"/><rect x="3" y="16" width="5" height="5" rx="1"/><path d="M21 12h-6a2 2 0 0 0-2 2v6"/><path d="M8 8v4a2 2 0 0 0 2 2h2"/></svg>`,
+      wifi_off: `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M10.71 5.05A16 16 0 0 1 22.56 9"/><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>`,
+      lock: `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`,
+      server: `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>`,
+      arrowR: `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`,
+      arrowL: `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>`,
+      chevR: `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>`,
+      more: `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>`,
+    };
+    return React.createElement('span', { dangerouslySetInnerHTML: { __html: map[name] || map.file }, style: { display: 'flex', alignItems: 'center', lineHeight: 0 } });
+  }
+
+  renderVals() {
+    const s = this.state;
+
+    // ── Navigation tabs
+    const navTabs = [
+      { id: 'notif', num: '52', label: 'Notifications' },
+      { id: 'cmd',   num: '53', label: 'Command Palette' },
+      { id: 'empty', num: '54', label: 'Empty States' },
+      { id: 'error', num: '55', label: 'Error & System' },
+      { id: 'mobile',num: '56', label: 'Mobile Patterns' },
+    ].map(t => ({
+      ...t,
+      style: s.view === t.id
+        ? 'display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 13px;border-radius:8px;background:#1A2336;border:1px solid #33415C;color:#F4F1E6;font-family:Inter;font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap;'
+        : 'display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 13px;border-radius:8px;border:1px solid transparent;background:transparent;color:#8B95A8;font-family:Inter;font-size:12.5px;font-weight:500;cursor:pointer;white-space:nowrap;',
+      numStyle: 'font-family:\'JetBrains Mono\',monospace;font-size:9.5px;opacity:.55;',
+      on: () => this.setState({ view: t.id }),
+    }));
+
+    // ── Notifications
+    const allNotifs = [
+      { id:'n1', group:'Today',     iconName:'clock',    iconColor:'#EF4444', iconBg:'rgba(239,68,68,.12)',   title:'Deadline in 48 hours',           body:'Motion to set aside judgment — Adeleke v. Sterling Oil must be filed by Monday 09:00 WAT.',        time:'9:41 AM',  unread:true },
+      { id:'n2', group:'Today',     iconName:'user',     iconColor:'#3B82F6', iconBg:'rgba(59,130,246,.12)',  title:'New matter assigned',             body:'B. Fashola SAN added you as lead associate on Zenith Bank Plc v. Oceanic Holdings.',              time:'8:22 AM',  unread:true },
+      { id:'n3', group:'Today',     iconName:'sparkles', iconColor:'#C9A84C', iconBg:'rgba(201,168,76,.12)',  title:'AI Citation Check complete',      body:'6 of 6 authorities verified in "Claimant\'s Brief — LCCI v. AG Lagos". 1 authority flagged.',     time:'7:55 AM',  unread:false },
+      { id:'n4', group:'Yesterday', iconName:'file',     iconColor:'#10B981', iconBg:'rgba(16,185,129,.12)',  title:'Document shared with you',        body:'N. Okonkwo shared "Draft Statement of Claim — Adeleke v. Sterling" with edit access.',             time:'4:12 PM',  unread:true },
+      { id:'n5', group:'Yesterday', iconName:'receipt',  iconColor:'#10B981', iconBg:'rgba(16,185,129,.12)',  title:'Invoice settled — ₦2,150,000',    body:'Sterling Oil & Gas Ltd paid Invoice INV-2025-0412 in full.',                                       time:'11:03 AM', unread:false },
+      { id:'n6', group:'Earlier',   iconName:'warning',  iconColor:'#F59E0B', iconBg:'rgba(245,158,11,.12)',  title:'Overruled authority detected',    body:'Lakanmi v. AG (West) (1970) is overruled. Used in 2 of your filed documents — review urgently.',   time:'18 Jun',   unread:true },
+      { id:'n7', group:'Earlier',   iconName:'user',     iconColor:'#3B82F6', iconBg:'rgba(59,130,246,.12)',  title:'Added to matter as second chair', body:'Added to LCCI v. AG Lagos State (FHC/L/CS/123/2025) by B. Fashola SAN.',                           time:'17 Jun',   unread:false },
+    ];
+
+    const readObj = s.notifRead || {};
+    const isRead = (id) => s.allRead || readObj[id] === true;
+    const unreadCount = allNotifs.filter(n => !isRead(n.id)).length;
+    const filtered = s.notifFilter === 'unread' ? allNotifs.filter(n => !isRead(n.id)) : allNotifs;
+
+    const markOneRead = (id) => () => {
+      if (!isRead(id)) {
+        this.setState(st => ({ notifRead: { ...(st.notifRead || {}), [id]: true } }));
+        this.showToast('Notification marked as read', 'ok');
+      }
+    };
+
+    const notifGroups = ['Today','Yesterday','Earlier'].map(g => ({
+      label: g,
+      items: filtered.filter(n => n.group === g).map(n => {
+        const read = isRead(n.id);
+        return {
+          ...n,
+          iconEl: this.icon(n.iconName, 16),
+          iconWrap: `width:34px;height:34px;flex:none;border-radius:10px;background:${n.iconBg};display:flex;align-items:center;justify-content:center;color:${n.iconColor};`,
+          rowStyle: `display:flex;align-items:flex-start;gap:11px;padding:13px 16px;border-bottom:1px solid #1A2336;border-left:3px solid ${read?'transparent':n.iconColor};cursor:pointer;transition:background 100ms;`,
+          titleStyle: `font-size:13px;font-weight:${read?'500':'600'};color:${read?'#8B95A8':'#EDF1FB'};`,
+          isUnread: !read,
+          markRead: markOneRead(n.id),
+        };
+      }),
+    })).filter(g => g.items.length > 0);
+
+    const tabBase = 'display:flex;align-items:center;gap:5px;flex:1;height:29px;padding:0 11px;border:none;border-radius:7px;font-family:Inter;font-size:12px;cursor:pointer;justify-content:center;';
+    const notifAllTab    = tabBase + ((s.notifFilter||'all')==='all'    ? 'background:#1A2336;color:#F4F1E6;font-weight:600;' : 'background:transparent;color:#8B95A8;font-weight:500;');
+    const notifUnreadTab = tabBase + ((s.notifFilter||'all')==='unread' ? 'background:#1A2336;color:#F4F1E6;font-weight:600;' : 'background:transparent;color:#8B95A8;font-weight:500;');
+
+    // ── Command palette
+    const q = s.cmdQuery || '';
+    const cmdRowStyle = 'display:flex;align-items:center;gap:11px;padding:8px 10px;border-radius:9px;cursor:pointer;transition:background 100ms;';
+    const cmdIconWrap = (c) => `width:30px;height:30px;flex:none;border-radius:8px;background:#141B2E;display:flex;align-items:center;justify-content:center;color:${c};`;
+
+    const recentActions = [
+      { label:'Adeleke v. Sterling Oil & Gas Ltd',                              sub:'Matter · SUIT NO. LD/4521/2024',      iconName:'briefcase', iconColor:'#C9A84C' },
+      { label:"Run citation check on Claimant's Brief",                         sub:'Citation Check · 3 minutes ago',      iconName:'sparkles',  iconColor:'#C9A84C' },
+      { label:'Invoice INV-2026-0061 — Sterling Oil & Gas',                    sub:'Billing · 2 days ago',                iconName:'receipt',   iconColor:'#8B95A8' },
+      { label:'"Requirements for a valid arbitration agreement 2023"',          sub:'AI Research · Yesterday',             iconName:'search',    iconColor:'#8B95A8' },
+    ].map(a => ({ ...a, iconEl: this.icon(a.iconName, 15), iconWrap: cmdIconWrap(a.iconColor), rowStyle: cmdRowStyle }));
+
+    const searchGroups = q.length > 0 ? [
+      { label:'Matters', items:[
+        { label:'Reg. Trustees, LCCI v. AG Lagos State', sub:'FHC/L/CS/123/2025 · Active · Land Law', iconName:'briefcase', iconColor:'#C9A84C' },
+      ]},
+      { label:'Documents', items:[
+        { label:"Claimant's Written Address — LCCI.docx",  sub:'Documents · Modified 2 days ago', iconName:'file', iconColor:'#8B95A8' },
+        { label:'LCCI Engagement Letter 2022.pdf',          sub:'Documents · Modified 14 Jun',    iconName:'file', iconColor:'#8B95A8' },
+      ]},
+      { label:'Actions', items:[
+        { label:`Research "${q}"`,                              sub:'DeLaw AI · Research',             iconName:'sparkles',  iconColor:'#C9A84C' },
+        { label:'Open matter: Reg. Trustees, LCCI v. AG Lagos', sub:'Navigate to matter',             iconName:'arrowR',    iconColor:'#8B95A8' },
+      ]},
+    ].map(g => ({ ...g, items: g.items.map(it => ({ ...it, iconEl: this.icon(it.iconName, 15), iconWrap: cmdIconWrap(it.iconColor), rowStyle: cmdRowStyle })) })) : [];
+
+    // ── Empty states
+    const goldIcon = (name) => `width:52px;height:52px;border-radius:14px;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.2);display:flex;align-items:center;justify-content:center;color:#C9A84C;`;
+    const mutedIcon = () => `width:52px;height:52px;border-radius:14px;background:#1A2336;border:1px solid #232E44;display:flex;align-items:center;justify-content:center;color:#5C6678;`;
+    const goldCta  = 'display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 18px;border:none;border-radius:10px;background:linear-gradient(135deg,#D4B25E,#C9A84C);color:#1a1404;font-family:Inter;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 2px 10px rgba(201,168,76,.2);';
+    const ghostCta = 'display:inline-flex;align-items:center;gap:7px;height:38px;padding:0 18px;border:1px solid #33415C;border-radius:10px;background:transparent;color:#C7D0E0;font-family:Inter;font-size:13px;font-weight:600;cursor:pointer;';
+
+    const emptyStates = [
+      { badge:'Matters list',    icon:'briefcase', gold:true,  title:'No active matters',             desc:'Open a new matter file to start managing your first case, transaction or advisory mandate.',         cta:'New Matter',      ctaGold:true,  ctaIcon:'plus'   },
+      { badge:'Documents tab',   icon:'file',      gold:false, title:'No documents in this folder',   desc:'Draft a new document or upload an existing file to begin working on this matter.',                  cta:'New Document',    ctaGold:false, ctaIcon:'plus'   },
+      { badge:'Clients',         icon:'users',     gold:false, title:'No clients yet',                desc:'Add your first client to track matters, invoices and correspondence in a single profile.',          cta:'Add Client',      ctaGold:false, ctaIcon:'plus'   },
+      { badge:'Billing',         icon:'receipt',   gold:false, title:'No invoices yet',               desc:'Time logged against active matters will appear once you create your first invoice.',                cta:'Create Invoice',  ctaGold:false, ctaIcon:'plus'   },
+      { badge:'Workflows',       icon:'workflow',  gold:false, title:'No workflows running',          desc:'Automate deadline alerts, document review and client updates with DeLaw Workflows.',                cta:'Browse templates',ctaGold:false, ctaIcon:'arrowR' },
+      { badge:'Search results',  icon:'search',    gold:false, title:'No results for "conveyancing"', desc:'Try different keywords, or broaden the search to all Nigerian courts and jurisdictions.',           cta:'Clear search',    ctaGold:false, ctaIcon:'x'      },
+    ].map(e => ({
+      ...e,
+      iconEl:    this.icon(e.icon, 24),
+      iconBg:    e.gold ? goldIcon() : mutedIcon(),
+      ctaStyle:  e.ctaGold ? goldCta : ghostCta,
+      ctaIconEl: this.icon(e.ctaIcon, 14),
+    }));
+
+    // ── Error states
+    const errorStates = [
+      { code:'404',     icon:'file',     accent:'#C9A84C', title:'Matter not found',       desc:'This matter may have been archived or the link is no longer valid.',                                        cta1:'Back to Matters',   cta2:'Contact support' },
+      { code:'404',     icon:'file',     accent:'#C9A84C', title:'Document not found',      desc:'This document may have been deleted or moved. Check your document library for the latest version.',        cta1:'Back to Documents', cta2:'Contact support' },
+      { code:'500',     icon:'server',   accent:'#EF4444', title:'Something went wrong',    desc:'An unexpected error occurred on our end. Our team has been alerted and is working on a fix.',              cta1:'Try again',         cta2:'DeLaw status'    },
+      { code:'Offline', icon:'wifi_off', accent:'#8B95A8', title:"You're offline",          desc:'Check your internet connection. Your last session is available in read-only mode.',                        cta1:'Retry connection',  cta2:null              },
+      { code:'Session', icon:'lock',     accent:'#F59E0B', title:'Session expired',         desc:'For your security you have been signed out. Sign in again to continue where you left off.',               cta1:'Sign back in',      cta2:null              },
+      { code:'403',     icon:'lock',     accent:'#EF4444', title:'Access restricted',       desc:'You do not have permission to view this matter. Contact your firm administrator to request access.',       cta1:'Go back',           cta2:'Request access'  },
+    ].map(e => ({
+      ...e,
+      iconEl:   this.icon(e.icon, 26),
+      hasCta2:  !!e.cta2,
+      cardStyle: `background:#101728;border:1px solid #232E44;border-top:3px solid ${e.accent};border-radius:14px;padding:20px 20px 18px;`,
+      codeBadge: `display:inline-flex;align-items:center;font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:700;letter-spacing:.05em;color:${e.accent};background:${e.accent}18;border:1px solid ${e.accent}44;padding:2px 8px;border-radius:5px;`,
+      iconWrap:  `width:38px;height:38px;border-radius:10px;background:${e.accent}18;display:flex;align-items:center;justify-content:center;color:${e.accent};`,
+      btn1Style: `display:inline-flex;align-items:center;height:34px;padding:0 14px;border:none;border-radius:8px;background:${e.accent === '#C9A84C' ? 'linear-gradient(135deg,#D4B25E,#C9A84C)' : e.accent+'22'};color:${e.accent === '#C9A84C' ? '#1a1404' : e.accent};font-family:Inter;font-size:12.5px;font-weight:700;cursor:pointer;`,
+      btn2Style: `display:inline-flex;align-items:center;height:34px;padding:0 14px;border:1px solid #33415C;border-radius:8px;background:transparent;color:#8B95A8;font-family:Inter;font-size:12.5px;font-weight:600;cursor:pointer;`,
+    }));
+
+    // ── Skeleton types
+    const skBtnActive = 'height:28px;padding:0 12px;border:none;border-radius:7px;background:#C9A84C;color:#1a1404;font-family:Inter;font-size:11.5px;font-weight:700;cursor:pointer;';
+    const skBtnIdle   = 'height:28px;padding:0 12px;border:1px solid #243049;border-radius:7px;background:#101728;color:#8B95A8;font-family:Inter;font-size:11.5px;font-weight:600;cursor:pointer;';
+    const st = s.skelType || 'dashboard';
+    const skTypes = [
+      { id:'dashboard', label:'Dashboard' },
+      { id:'matter',    label:'Matter detail' },
+      { id:'docs',      label:'Document list' },
+    ].map(t => ({ ...t, style: st===t.id ? skBtnActive : skBtnIdle, on: () => this.setState({ skelType: t.id }) }));
+
+    // ── Toast
+    const toastColors = { ok: '#10B981', warn: '#F59E0B', danger: '#EF4444', info: '#3B82F6' };
+    const toastType = s.toast ? s.toast.type : 'ok';
+    const toastBg   = toastColors[toastType] || '#10B981';
+
+    return {
+      navTabs,
+      isNotif:  s.view === 'notif',
+      isCmd:    s.view === 'cmd',
+      isEmpty:  s.view === 'empty',
+      isError:  s.view === 'error',
+      isMobile: s.view === 'mobile',
+
+      // notif
+      notifOpen:    s.notifOpen,
+      notifClosed:  !s.notifOpen,
+      notifGroups,
+      unreadCount,
+      unreadBadge:  String(unreadCount),
+      hasUnread:    unreadCount > 0,
+      allRead:      unreadCount === 0,
+      notifListEmpty: notifGroups.length === 0,
+      notifAllTab,
+      notifUnreadTab,
+      notifAllBadge:        'font-size:10px;font-weight:700;background:rgba(139,149,168,.15);padding:1px 5px;border-radius:4px;margin-left:3px;color:#8B95A8;',
+      notifUnreadBadgeStyle:'font-size:10px;font-weight:700;background:rgba(239,68,68,.18);padding:1px 5px;border-radius:4px;margin-left:3px;color:#EF4444;',
+      notifBgStyle: `flex:1;display:flex;min-width:0;transition:opacity 200ms;opacity:${s.notifOpen ? '.45' : '1'};`,
+      markAllRead:  () => this.setState({ allRead: true }),
+      openNotif:    () => this.setState({ notifOpen: true }),
+      closeNotif:   () => this.setState({ notifOpen: false }),
+      setFilterAll:    () => this.setState({ notifFilter: 'all' }),
+      setFilterUnread: () => this.setState({ notifFilter: 'unread' }),
+      stopProp: (e) => e && e.stopPropagation && e.stopPropagation(),
+
+      // cmd
+      cmdOpen:    s.cmdOpen !== false,
+      cmdClosed:  s.cmdOpen === false,
+      cmdQuery:   q,
+      cmdNoQuery: q.length === 0,
+      cmdHasQuery:q.length > 0,
+      recentActions,
+      searchGroups,
+      openCmd:    () => this.setState({ cmdOpen: true, cmdQuery: '' }),
+      closeCmd:   () => this.setState({ cmdOpen: false }),
+      onCmdInput: (e) => this.setState({ cmdQuery: e.target.value }),
+      onCmdKey:   (e) => { if (e.key === 'Escape') this.setState({ cmdOpen: false }); },
+
+      // empty
+      emptyStates,
+
+      // error
+      errorStates,
+      skTypes,
+      isSkelDash:   st === 'dashboard',
+      isSkelMatter: st === 'matter',
+      isSkelDocs:   st === 'docs',
+
+      // toast
+      toastOpen:  !!s.toast,
+      toastMsg:   s.toast ? s.toast.msg : '',
+      toastStyle: `position:fixed;bottom:24px;right:24px;z-index:999;display:flex;align-items:center;gap:9px;height:40px;padding:0 16px;border-radius:10px;background:${toastBg};color:#fff;font-family:Inter;font-size:13px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.4);animation:dl-rise 220ms ease;`,
+
+      // icons
+      bellIcon:   this.icon('bell',    16),
+      searchIcon: this.icon('search',  16),
+      sparkIcon:  this.icon('sparkles',16),
+      checkIcon:  this.icon('check',   13),
+      xIcon:      this.icon('x',       14),
+      homeIcon:   this.icon('home',    16),
+      briefIcon:  this.icon('briefcase',16),
+      fileIcon:   this.icon('file',    16),
+      usersIcon:  this.icon('users',   16),
+      chartIcon:  this.icon('chart',   16),
+      chevRIcon:  this.icon('chevR',   13),
+      arrowRIcon: this.icon('arrowR',  15),
+      arrowLIcon: this.icon('arrowL',  15),
+      clockIcon:  this.icon('clock',   16),
+      userIcon:   this.icon('user',    16),
+      warnIcon:   this.icon('warning', 16),
+      moreIcon:   this.icon('more',    16),
+    };
+  }
+}
+</script>
+</body>
+</html>
