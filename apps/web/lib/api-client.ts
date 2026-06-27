@@ -1,13 +1,19 @@
 import type {
   ApiErrorBody,
   ForgotPasswordRequest,
+  LegalContentResponse,
   LoginRequest,
   LoginResponse,
   RefreshResponse,
   RegisterRequest,
   RegisterResponse,
+  ResearchRequest,
+  ResearchSessionsResponse,
+  ResearchStreamEvent,
   ResendVerificationRequest,
   ResetPasswordRequest,
+  SearchRequest,
+  SearchResponse,
   SessionResponse,
   SuccessResponse,
   TotpChallengeRequest,
@@ -224,5 +230,97 @@ export const usersApi = {
       body: input,
     }),
 };
+
+/** Legal research endpoints (apps/api `/api/v1/ai/*`, spec §4.5). */
+export const researchApi = {
+  search: (input: SearchRequest) =>
+    request<SearchResponse>("/api/v1/ai/research/search", {
+      method: "POST",
+      body: input,
+    }),
+
+  recentSessions: (limit = 5) =>
+    request<ResearchSessionsResponse>(
+      `/api/v1/ai/research/sessions?limit=${limit}`,
+    ),
+
+  getCase: (id: string) =>
+    request<LegalContentResponse>(`/api/v1/ai/legal-content/${id}`),
+};
+
+export interface ResearchStreamHandlers {
+  onEvent: (event: ResearchStreamEvent) => void;
+  signal?: AbortSignal;
+}
+
+/**
+ * Stream POST /api/v1/ai/research as Server-Sent Events.
+ *
+ * Native EventSource cannot send a POST body or an Authorization header, so we
+ * read the streamed response with fetch + a ReadableStream reader and parse the
+ * SSE frames ourselves. Handles a single 401 refresh-and-retry like `request`.
+ */
+export async function streamResearch(
+  input: ResearchRequest,
+  { onEvent, signal }: ResearchStreamHandlers,
+): Promise<void> {
+  const open = async (): Promise<Response> => {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      Accept: "text/event-stream",
+    };
+    const token = getAccessToken();
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+    return fetch(`${API_BASE}/api/v1/ai/research`, {
+      method: "POST",
+      credentials: "include",
+      headers,
+      body: JSON.stringify(input),
+      signal,
+    });
+  };
+
+  let res = await open();
+  if (res.status === 401) {
+    const refreshed = await refreshSession();
+    if (refreshed) {
+      res = await open();
+    } else {
+      clearTokens();
+    }
+  }
+
+  if (!res.ok || !res.body) {
+    const parsed = (await parseBody(res)) as ApiErrorBody | null;
+    throw new ApiError(res.status, parsed && typeof parsed === "object" ? parsed : null);
+  }
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  const flush = (frame: string) => {
+    const line = frame.split("\n").find((l) => l.startsWith("data:"));
+    if (!line) return;
+    try {
+      onEvent(JSON.parse(line.slice(5).trim()) as ResearchStreamEvent);
+    } catch {
+      // Ignore keep-alives / malformed frames.
+    }
+  };
+
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    let sep: number;
+    while ((sep = buffer.indexOf("\n\n")) !== -1) {
+      flush(buffer.slice(0, sep));
+      buffer = buffer.slice(sep + 2);
+    }
+  }
+}
 
 export { request as apiRequest };

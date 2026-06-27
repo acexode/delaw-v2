@@ -3,3 +3,4 @@
 // and are consumed by the web client (apps/web/lib/api-client.ts).
 
 export * from "./auth";
+export * from "./research";

@@ -21,6 +21,10 @@ const schema = z.object({
   REFRESH_TOKEN_TTL_DAYS: z.coerce.number().int().positive().default(30),
   RESEND_API_KEY: z.string().default(""),
   EMAIL_FROM: z.string().default("noreply@delaw.africa"),
+  // Python AI service (spec §4.5 / §5.6). The API is the only caller; it
+  // authenticates with the shared secret over the private network.
+  AI_SERVICE_URL: z.string().default("http://localhost:8000"),
+  AI_SERVICE_SECRET: z.string().default(""),
 });
 
 const parsed = schema.safeParse(process.env);

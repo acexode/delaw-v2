@@ -23,7 +23,7 @@ _pool: asyncpg.Pool | None = None
 # Columns returned for every search result (no embedding / full_text payload).
 _RESULT_COLUMNS = """
     id, type, jurisdiction, title, citation, suit_number, court,
-    year, authority_status, source, source_url
+    year, authority_status, source, source_url, summary
 """
 
 

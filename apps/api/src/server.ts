@@ -9,6 +9,7 @@ import { ZodError } from "zod";
 
 import { AppError } from "./lib/errors";
 import { registerTenancy } from "./plugins/tenant";
+import { aiRoutes } from "./routes/ai";
 import { authRoutes } from "./routes/auth";
 
 export async function buildServer(): Promise<FastifyInstance> {
@@ -88,6 +89,7 @@ export async function buildServer(): Promise<FastifyInstance> {
   app.get("/health", async () => ({ status: "ok", service: "delaw-api" }));
 
   await app.register(authRoutes, { prefix: "/api/v1/auth" });
+  await app.register(aiRoutes, { prefix: "/api/v1/ai" });
 
   return app;
 }

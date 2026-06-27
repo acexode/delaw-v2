@@ -34,6 +34,7 @@ def _to_result(row: dict[str, Any]) -> SearchResult:
         authority_status=row.get("authority_status") or "GOOD_LAW",
         source=row.get("source"),
         source_url=row.get("source_url"),
+        summary=row.get("summary"),
         score=float(row.get("score") or 0.0),
     )
 
