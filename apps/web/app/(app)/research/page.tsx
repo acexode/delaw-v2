@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, Clock, Search, Sparkles } from "lucide-react";
+import { ChevronDown, Clock, Search, SlidersHorizontal, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -59,7 +59,7 @@ export default function ResearchHomePage() {
   };
 
   return (
-    <div className="flex flex-col items-center px-8 pb-20 pt-14">
+    <div className="flex flex-col items-center px-[30px] pb-[70px] pt-14">
       <div className="w-full max-w-[740px]">
         <div className="mb-7 text-center">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-[13px] border border-gold/30 bg-gold/10 text-gold">
@@ -81,10 +81,10 @@ export default function ResearchHomePage() {
                 key={m.id}
                 type="button"
                 onClick={() => setMode(m.id)}
-                className={`rounded-lg px-3.5 py-1.5 text-[12.5px] font-semibold transition ${
+                className={`h-[30px] rounded-[7px] px-3.5 text-[12.5px] transition ${
                   mode === m.id
-                    ? "bg-gold/15 text-gold"
-                    : "text-text-muted hover:text-text-body"
+                    ? "bg-gold font-bold text-gold-ink"
+                    : "font-semibold text-text-muted hover:text-text-body"
                 }`}
               >
                 {m.label}
@@ -98,7 +98,8 @@ export default function ResearchHomePage() {
             e.preventDefault();
             submit(query);
           }}
-          className="flex items-center gap-3 rounded-[14px] border border-line-raised bg-bg-750 px-4 py-3.5 shadow-card focus-within:border-gold"
+          style={{ boxShadow: "0 8px 30px rgba(0,0,0,.3)" }}
+          className="flex items-center gap-3 rounded-[14px] border border-line-raised bg-bg-750 px-4 py-3.5 focus-within:border-gold"
         >
           <Search size={18} className="flex-none text-gold" />
           <input
@@ -119,11 +120,12 @@ export default function ResearchHomePage() {
         </form>
 
         <div className="mt-3 flex flex-wrap justify-center gap-2">
-          {FILTER_PILLS.map((p) => (
+          {FILTER_PILLS.map((p, i) => (
             <span
               key={p}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-line-default bg-bg-750 px-3 py-1.5 text-[12px] text-text-secondary"
+              className="inline-flex h-[30px] items-center gap-1.5 rounded border border-line-strong bg-bg-750 px-3 text-[12px] font-medium text-text-secondary"
             >
+              {i === 0 && <SlidersHorizontal size={13} />}
               {p}
               <ChevronDown size={13} className="text-text-faint" />
             </span>
@@ -131,7 +133,7 @@ export default function ResearchHomePage() {
         </div>
       </div>
 
-      <div className="mt-10 grid w-full max-w-[740px] grid-cols-1 gap-[18px] sm:grid-cols-2">
+      <div className="mt-10 grid w-full max-w-[740px] grid-cols-2 gap-[18px]">
         <div>
           <div className="mb-3 text-[10.5px] font-semibold uppercase tracking-[0.08em] text-text-faint">
             Recent searches
@@ -168,7 +170,7 @@ export default function ResearchHomePage() {
 
         <div>
           <div className="mb-3 text-[10.5px] font-semibold uppercase tracking-[0.08em] text-text-faint">
-            Suggested topics
+            Suggested from your matters
           </div>
           <div className="flex flex-col gap-[7px]">
             {SUGGESTED.map((t) => (

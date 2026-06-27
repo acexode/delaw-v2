@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Bookmark, Highlighter, SquarePen } from "lucide-react";
+import { ArrowLeft, Bookmark, Check, Highlighter, SquarePen } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -18,7 +18,7 @@ function loadAnnotations(caseId: string): Annotation[] {
   }
 }
 
-type RightTab = "analysis" | "health" | "cited";
+type RightTab = "analysis" | "health";
 
 export default function CaseViewerPage() {
   const router = useRouter();
@@ -27,6 +27,8 @@ export default function CaseViewerPage() {
   const { data, status, error, retry } = useCase(caseId);
 
   const [tab, setTab] = useState<RightTab>("analysis");
+  const [activeSection, setActiveSection] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
   const [annotations, setAnnotations] = useState<Annotation[]>([]);
   const [draft, setDraft] = useState<{ quote: string; note: string } | null>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -118,21 +120,27 @@ export default function CaseViewerPage() {
           <ArrowLeft size={15} /> Back to results
         </button>
         <div className="mb-3 text-[10px] font-semibold uppercase tracking-[0.07em] text-text-faint">
-          On this page
+          Judgment
         </div>
-        <div className="flex flex-col gap-0.5">
-          {sections.map((s) => (
-            <button
-              key={s.id}
-              type="button"
-              onClick={() =>
-                document.getElementById(s.id)?.scrollIntoView({ behavior: "smooth" })
-              }
-              className="rounded-md px-2 py-1.5 text-left text-[12.5px] text-text-secondary hover:bg-bg-750 hover:text-text-body"
-            >
-              {s.label}
-            </button>
-          ))}
+        <div className="flex flex-col gap-[3px]">
+          {sections.map((s) => {
+            const active = (activeSection ?? sections[0]?.id) === s.id;
+            return (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => {
+                  setActiveSection(s.id);
+                  document.getElementById(s.id)?.scrollIntoView({ behavior: "smooth" });
+                }}
+                className={`rounded-[7px] px-2.5 py-[7px] text-left text-[12.5px] ${
+                  active ? "bg-gold/10 text-gold" : "text-text-muted hover:text-text-body"
+                }`}
+              >
+                {s.label}
+              </button>
+            );
+          })}
         </div>
       </aside>
 
@@ -221,12 +229,11 @@ export default function CaseViewerPage() {
 
       {/* Analysis / Authority Health / Cases Cited */}
       <aside className="flex w-[332px] flex-none flex-col border-l border-line-subtle bg-bg-900">
-        <div className="flex gap-4 border-b border-line-subtle px-4 pt-3">
+        <div className="flex gap-[18px] border-b border-line-subtle px-[17px] pt-3">
           {(
             [
               ["analysis", "AI Analysis"],
               ["health", "Authority Health"],
-              ["cited", "Cases Cited"],
             ] as [RightTab, string][]
           ).map(([id, label]) => (
             <button
@@ -244,27 +251,27 @@ export default function CaseViewerPage() {
           ))}
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4">
-          {tab === "analysis" && (
-            <div className="flex flex-col gap-4 text-[12.5px] leading-relaxed text-text-secondary">
-              <div>
-                <div className="mb-1.5 text-[10.5px] font-semibold uppercase tracking-[0.07em] text-text-faint">
-                  Holding / summary
-                </div>
-                <p>{data.summary ?? "No AI summary available for this authority yet."}</p>
+        <div className="flex-1 overflow-y-auto p-[17px]">
+          {tab === "analysis" ? (
+            <div className="flex flex-col text-[12.5px] leading-[1.6] text-text-secondary">
+              <div className="mb-2 text-[10.5px] font-semibold uppercase tracking-[0.07em] text-text-faint">
+                Holding
               </div>
-              <div>
-                <div className="mb-1.5 text-[10.5px] font-semibold uppercase tracking-[0.07em] text-text-faint">
-                  Ratio decidendi
-                </div>
-                <p>{data.ratio ?? "Not available."}</p>
+              <p className="mb-4">
+                {data.summary ?? "No AI summary available for this authority yet."}
+              </p>
+
+              <div className="mb-2 text-[10.5px] font-semibold uppercase tracking-[0.07em] text-text-faint">
+                Ratio decidendi
               </div>
+              <p className="mb-4">{data.ratio ?? "Not available."}</p>
+
               {data.subjectArea && data.subjectArea.length > 0 && (
-                <div>
-                  <div className="mb-1.5 text-[10.5px] font-semibold uppercase tracking-[0.07em] text-text-faint">
+                <>
+                  <div className="mb-2 text-[10.5px] font-semibold uppercase tracking-[0.07em] text-text-faint">
                     Subject areas
                   </div>
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="mb-4 flex flex-wrap gap-1.5">
                     {data.subjectArea.map((s) => (
                       <span
                         key={s}
@@ -274,30 +281,45 @@ export default function CaseViewerPage() {
                       </span>
                     ))}
                   </div>
-                </div>
+                </>
               )}
-            </div>
-          )}
 
-          {tab === "health" && (
-            <div className="rounded-xl border border-line-default bg-bg-750 p-3.5">
-              <div
-                className={`mb-2.5 flex items-center gap-1.5 text-[11px] font-bold tracking-wide ${meta.className.split(" ").find((c) => c.startsWith("text-")) ?? "text-success"}`}
-              >
-                {meta.icon} AUTHORITY HEALTH
+              <div className="mb-2 text-[10.5px] font-semibold uppercase tracking-[0.07em] text-text-faint">
+                Cases cited in this judgment
+              </div>
+              <div className="rounded-lg border border-dashed border-line-default bg-bg-750 p-3 text-[11.5px] text-text-faint">
+                Cited-cases extraction is not yet available for this authority.
+              </div>
+            </div>
+          ) : (
+            <div className="rounded-[11px] border border-line-default bg-bg-750 p-[13px]">
+              <div className="mb-2.5 flex items-center gap-1.5 text-[11px] font-bold tracking-[0.04em] text-success">
+                <Check size={12} strokeWidth={2.5} /> AUTHORITY HEALTH
               </div>
               <div className="flex flex-col gap-2 text-[12.5px]">
                 <div className="flex justify-between">
                   <span className="text-text-muted">Status</span>
-                  <span className="font-semibold">{meta.label}</span>
+                  <span className={`font-semibold ${meta.className.split(" ").find((c) => c.startsWith("text-")) ?? "text-success"}`}>
+                    {meta.label}
+                  </span>
                 </div>
                 <div className="flex justify-between">
+                  <span className="text-text-muted">Followed by</span>
+                  <span className="font-mono text-text-faint">Not tracked yet</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-text-muted">Distinguished in</span>
+                  <span className="font-mono text-text-faint">Not tracked yet</span>
+                </div>
+                <div className="flex justify-between gap-3">
                   <span className="text-text-muted">Overruled by</span>
-                  <span className="font-mono text-text-body">
+                  <span className="text-right font-mono text-text-body">
                     {data.overruledByCase ? (
                       <button
                         type="button"
-                        onClick={() => router.push(`/research/${data.overruledByCase!.id}`)}
+                        onClick={() =>
+                          router.push(`/research/${data.overruledByCase!.id}`)
+                        }
                         className="text-gold"
                       >
                         {data.overruledByCase.title}
@@ -307,21 +329,11 @@ export default function CaseViewerPage() {
                     )}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-text-muted">Followed / distinguished</span>
-                  <span className="text-text-faint">Not tracked yet</span>
-                </div>
               </div>
               <p className="mt-3 text-[11px] leading-relaxed text-text-faint">
                 Citation-graph treatment (followed / distinguished / cited-by) is
                 not yet modelled in the corpus.
               </p>
-            </div>
-          )}
-
-          {tab === "cited" && (
-            <div className="rounded-xl border border-dashed border-line-default bg-bg-750 p-6 text-center text-[12.5px] text-text-muted">
-              Cited-cases extraction is not available for this authority yet.
             </div>
           )}
         </div>
@@ -337,11 +349,12 @@ export default function CaseViewerPage() {
           </button>
           <button
             type="button"
-            disabled
-            title="Saving to a matter is coming soon (matters API pending)."
-            className="flex h-9 items-center justify-center gap-2 rounded-[10px] border border-line-strong bg-bg-750 text-[12.5px] font-semibold text-text-body opacity-60"
+            onClick={() =>
+              setToast("Saving to a matter is coming soon (matters API pending).")
+            }
+            className="flex h-9 items-center justify-center gap-2 rounded-[10px] border border-line-strong bg-bg-750 text-[12.5px] font-semibold text-text-body hover:border-line-accent"
           >
-            <Bookmark size={14} /> Add to matter
+            <Bookmark size={14} /> Save to matter
           </button>
         </div>
       </aside>
@@ -377,6 +390,15 @@ export default function CaseViewerPage() {
               Save note
             </button>
           </div>
+        </div>
+      )}
+
+      {toast && (
+        <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-lg border border-line-strong bg-bg-600 px-4 py-2.5 text-[12.5px] text-text-body shadow-card">
+          {toast}
+          <button type="button" onClick={() => setToast(null)} className="ml-3 text-gold">
+            Dismiss
+          </button>
         </div>
       )}
     </div>
