@@ -1,0 +1,42 @@
+---
+description: DeLaw project governance, workflow rules, and locked tech stack. Always follow.
+alwaysApply: true
+---
+
+# DeLaw — How I Must Work
+
+**Source of truth:** `DeLaw_Technical_Specification_v1.0.docx` (extracted text in `spec_v1.txt`).
+A `v2.0` spec also exists — IGNORE it unless explicitly told to use it.
+
+## Non-negotiable rules
+1. **Never deviate from the spec without asking first.** If the spec is silent or contradictory, stop and ask.
+2. **Use exact spec identifiers** — DB column names, enum values, and route paths must match the spec character-for-character. See `delaw-schema.mdc`.
+3. **Never add a library outside the locked stack below without asking first.**
+4. **When in doubt, write less code and ask.** Don't guess and build.
+5. **After every task, report:** what was built, files created/modified, and what to test.
+6. **Never leave `TODO` comments.** Either implement it, or list it as a follow-up in the report.
+7. **No narration comments.** Comments only explain non-obvious intent/constraints.
+8. **Commit after every implemented feature.** Once a feature is complete and working, create a focused git commit scoped to that feature with a clear, conventional message (e.g. `feat(api): add auth login + refresh`). Don't batch unrelated features into one commit. Never commit secrets (`.env`, credentials). Do not push unless explicitly asked.
+
+## Locked tech stack (do not add to without approval)
+- **Frontend:** Next.js 14+ (App Router) + TypeScript 5+, Tailwind 3+, shadcn/ui, TanStack Query v5, Zustand 4+, React Hook Form 7+, Zod 3+, Tiptap 2+, Lucide React. Fonts: Inter + Source Serif 4 + JetBrains Mono via `next/font`. **Dark theme only (v1).**
+- **API:** Node.js 20 LTS + Fastify 4+ + TypeScript, Drizzle ORM, BullMQ 4+, Pino, Zod. Routes prefixed `/api/v1/`.
+- **AI service:** Python 3.12 + FastAPI 0.110+, LangChain 0.2+, Anthropic SDK, OpenAI SDK. Internal-only endpoints under `/internal/`.
+- **Data:** PostgreSQL 16 + pgvector 0.7+, Redis 7+, Cloudflare R2 (S3-compatible).
+- **Auth:** JWT RS256 access (15 min) + rotating refresh (30 day, httpOnly cookie), TOTP 2FA, bcrypt cost 12.
+- **Payments:** Paystack (primary), Stripe (international). **Email:** Resend.
+
+## Monorepo layout (Turborepo + pnpm)
+```
+delaw/
+  apps/{web, api, ai-service}
+  packages/{db, types, config, ui}
+  infrastructure/{docker, scripts}
+```
+- Shared Zod types live in `packages/types`. Drizzle schema + migrations live in `packages/db`.
+- Frontend talks ONLY to Node API. Node API is the ONLY caller of the Python AI service (private network + `AI_SERVICE_SECRET`). No frontend→AI calls.
+
+## Architecture invariants
+- Every tenant-scoped table has `organisation_id UUID NOT NULL`. Enforce tenant isolation at all 3 levels: JWT middleware → Drizzle query wrapper → Postgres RLS.
+- UUID PKs (`gen_random_uuid()`), `created_at`/`updated_at` triggers, soft delete via `deleted_at`.
+- AI must use RAG grounding — never let the LLM invent citations. Citation check is pgvector lookup only (no LLM).

@@ -1,0 +1,8 @@
+node_modules/
+.next/
+dist/
+.turbo/
+pnpm-lock.yaml
+*.html
+spec_v1.txt
+apps/ai-service/

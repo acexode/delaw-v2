@@ -1,0 +1,54 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Environment
+.env
+.env.local
+.env.*.local
+*.env
+
+# Next.js
+.next/
+out/
+
+# Build outputs
+dist/
+build/
+
+# Turborepo
+.turbo/
+
+# Python (ai-service)
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Testing / coverage
+coverage/
+.nyc_output/
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.idea/
+*.swp
+
+# TypeScript
+*.tsbuildinfo
+
+# Misc internal artifacts
+spec_v1.txt
+support.js
