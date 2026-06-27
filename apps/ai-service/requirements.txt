@@ -1,0 +1,5 @@
+# DeLaw AI Service — Python 3.12 (spec §14.1)
+# Minimal scaffold dependencies. RAG/LLM libraries (LangChain, Anthropic SDK,
+# OpenAI SDK) are added in Sprint 2 per the technical specification.
+fastapi>=0.110.0
+uvicorn[standard]>=0.30.0
