@@ -1,0 +1,60 @@
+/**
+ * DeLaw global styles — shared base layer.
+ * Mirrors the global <style> blocks in the Claude Design HTML exports.
+ * Fonts (Inter / Source Serif 4 / JetBrains Mono) are loaded via next/font.
+ */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Canonical design tokens (Design System screen / spec §14.3) */
+    --bg-base: #0a0f1e;
+    --bg-charcoal: #111827;
+    --surface: #1c2333;
+    --surface-2: #232b3e;
+    --accent-gold: #c9a84c;
+    --border: #2d3748;
+    --border-hover: #3d4a5c;
+    --text-primary: #f0f4ff;
+    --text-muted: #8b95a8;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg-base);
+    color: #edf1fb;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #243049;
+    border-radius: 8px;
+    border: 2px solid #0a0f1e;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #33415c;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: #5c6678;
+  }
+}
