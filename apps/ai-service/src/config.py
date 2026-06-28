@@ -28,12 +28,13 @@ class Settings(BaseSettings):
     embedding_batch_size: int = 100
     embedding_max_chars: int = 24000
 
-    # LLM selection per task (spec §5.4).
-    research_model: str = "claude-3-5-sonnet-20241022"
-    contract_model: str = "claude-3-5-sonnet-20241022"
-    chat_model: str = "claude-3-5-haiku-20241022"
-    summarise_model: str = "claude-3-5-haiku-20241022"
-    proofread_model: str = "claude-3-5-haiku-20241022"
+    # LLM selection per task (spec §5.4 — Sonnet for research/contract, Haiku
+    # for chat/summarise/proofread). Snapshot IDs from the Claude 4.x family.
+    research_model: str = "claude-sonnet-4-5-20250929"
+    contract_model: str = "claude-sonnet-4-5-20250929"
+    chat_model: str = "claude-haiku-4-5-20251001"
+    summarise_model: str = "claude-haiku-4-5-20251001"
+    proofread_model: str = "claude-haiku-4-5-20251001"
 
     research_max_tokens: int = 4096
     chat_max_tokens: int = 2048

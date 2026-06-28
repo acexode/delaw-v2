@@ -35,8 +35,45 @@ def _to_result(row: dict[str, Any]) -> SearchResult:
         source=row.get("source"),
         source_url=row.get("source_url"),
         summary=row.get("summary"),
+        subject_area=row.get("subject_area"),
         score=float(row.get("score") or 0.0),
     )
+
+
+def build_db_filters(
+    jurisdiction: str | None,
+    filters: SearchFilters | None,
+) -> dict[str, Any]:
+    """Translate the request filters into kwargs for the db search functions.
+
+    `subject_areas` become ILIKE patterns so 'Constitutional' matches the stored
+    'Constitutional Law'. When no explicit jurisdiction filter is set, the
+    single request jurisdiction (e.g. NG) is used as the default scope.
+    """
+    jurisdictions = (
+        list(filters.jurisdictions) if filters and filters.jurisdictions else None
+    )
+    content_types = (
+        list(filters.content_types) if filters and filters.content_types else None
+    )
+    courts = list(filters.courts) if filters and filters.courts else None
+    subject_areas = (
+        [f"%{area}%" for area in filters.subject_areas]
+        if filters and filters.subject_areas
+        else None
+    )
+    year_from = filters.year_from if filters else None
+    year_to = filters.year_to if filters else None
+    if not jurisdictions and jurisdiction:
+        jurisdictions = [jurisdiction]
+    return {
+        "jurisdictions": jurisdictions,
+        "content_types": content_types,
+        "courts": courts,
+        "subject_areas": subject_areas,
+        "year_from": year_from,
+        "year_to": year_to,
+    }
 
 
 def _court_authority_weight(court: str | None) -> float:
@@ -61,21 +98,19 @@ def _recency_weight(year: int | None) -> float:
 
 async def semantic_search(
     query_embedding: list[float],
-    jurisdiction: str | None,
-    content_type: str | None,
+    db_filters: dict[str, Any],
     limit: int = 12,
 ) -> list[SearchResult]:
-    rows = await db.vector_search(query_embedding, jurisdiction, content_type, limit)
+    rows = await db.vector_search(query_embedding, limit=limit, **db_filters)
     return [_to_result(row) for row in rows]
 
 
 async def keyword_search(
     query: str,
-    jurisdiction: str | None,
+    db_filters: dict[str, Any],
     limit: int = 12,
-    content_type: str | None = None,
 ) -> list[SearchResult]:
-    rows = await db.fulltext_search(query, jurisdiction, content_type, limit)
+    rows = await db.fulltext_search(query, limit=limit, **db_filters)
     return [_to_result(row) for row in rows]
 
 
@@ -87,15 +122,15 @@ async def hybrid_search(
 ) -> list[SearchResult]:
     settings = get_settings()
     limit = limit or settings.retrieval_limit
-    content_type = filters.content_type if filters else None
+    db_filters = build_db_filters(jurisdiction, filters)
 
     query_embedding = await embeddings.generate_embedding(query)
 
     # Over-fetch from each retriever so the merge has candidates to re-rank.
     fetch = limit * 2
     semantic, keyword = await asyncio.gather(
-        semantic_search(query_embedding, jurisdiction, content_type, fetch),
-        keyword_search(query, jurisdiction, fetch, content_type),
+        semantic_search(query_embedding, db_filters, fetch),
+        keyword_search(query, db_filters, fetch),
     )
 
     return _merge_and_rerank(semantic, keyword, limit)

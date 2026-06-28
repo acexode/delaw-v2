@@ -17,7 +17,12 @@ ChatRole = Literal["user", "assistant"]
 
 
 class SearchFilters(BaseModel):
-    content_type: ContentType | None = None
+    content_types: list[ContentType] | None = None
+    courts: list[str] | None = None
+    jurisdictions: list[str] | None = None
+    subject_areas: list[str] | None = None
+    year_from: int | None = None
+    year_to: int | None = None
 
 
 class ResearchRequest(BaseModel):
@@ -34,15 +39,25 @@ class SearchRequest(BaseModel):
     limit: int = Field(default=12, ge=1, le=50)
 
 
+AuthorityStatus = Literal["GOOD_LAW", "OVERRULED", "DISTINGUISHED", "DOUBTED"]
+
+
 class IngestRequest(BaseModel):
     content_type: ContentType
     jurisdiction: str = "NG"
     title: str = Field(min_length=1)
     citation: str | None = None
+    suit_number: str | None = None
     court: str | None = None
     date: str | None = None
+    year: int | None = None
+    subject_area: list[str] | None = None
     full_text: str = Field(min_length=1)
+    summary: str | None = None
+    ratio: str | None = None
+    authority_status: AuthorityStatus = "GOOD_LAW"
     source: str | None = None
+    source_url: str | None = None
 
 
 class CitationCheckRequest(BaseModel):

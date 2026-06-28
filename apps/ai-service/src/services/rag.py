@@ -60,7 +60,7 @@ async def research(
     settings = get_settings()
 
     # Step 3 — query preprocessing: mode shapes retrieval depth and filters.
-    content_type = "CASE_LAW" if mode == "CASE_LAW" else None
+    content_types = ["CASE_LAW"] if mode == "CASE_LAW" else None
     chunk_limit = (
         settings.context_chunks_deep if mode == "DEEP" else settings.context_chunks_quick
     )
@@ -69,7 +69,7 @@ async def research(
     results = await retrieval.hybrid_search(
         query,
         jurisdiction,
-        SearchFilters(content_type=content_type),
+        SearchFilters(content_types=content_types),
         limit=chunk_limit,
     )
 

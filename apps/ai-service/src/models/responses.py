@@ -16,6 +16,7 @@ class SearchResult(BaseModel):
     source: str | None = None
     source_url: str | None = None
     summary: str | None = None
+    subject_area: list[str] | None = None
     # Combined re-rank score; component scores retained for transparency.
     score: float = 0.0
     semantic_score: float | None = None

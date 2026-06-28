@@ -34,11 +34,17 @@ async def ingest(body: IngestRequest) -> IngestResponse:
         jurisdiction=body.jurisdiction,
         title=body.title,
         citation=body.citation,
+        suit_number=body.suit_number,
         court=body.court,
         date_decided=body.date,
-        year=_derive_year(body.date),
+        year=body.year if body.year is not None else _derive_year(body.date),
+        subject_area=body.subject_area,
         full_text=body.full_text,
+        summary=body.summary,
+        ratio=body.ratio,
+        authority_status=body.authority_status,
         source=body.source,
+        source_url=body.source_url,
         embedding=embedding,
     )
     return IngestResponse(id=str(content_id))

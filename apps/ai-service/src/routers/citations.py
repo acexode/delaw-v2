@@ -46,7 +46,7 @@ async def citation_check(body: CitationCheckRequest) -> CitationCheckResponse:
     for citation in citations:
         embedding = await embeddings.generate_embedding(citation)
         results = await retrieval.semantic_search(
-            embedding, body.jurisdiction, None, limit=1
+            embedding, retrieval.build_db_filters(body.jurisdiction, None), limit=1
         )
         top = results[0] if results else None
         if top is not None and top.score >= _RESOLVE_THRESHOLD:

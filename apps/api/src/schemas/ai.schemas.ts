@@ -22,12 +22,21 @@ export const researchSchema = z.object({
   matterContext: z.string().max(8000).optional(),
 });
 
+export const searchFiltersSchema = z
+  .object({
+    contentTypes: z.array(contentTypeSchema).optional(),
+    courts: z.array(z.string().trim().min(1)).optional(),
+    jurisdictions: z.array(z.string().trim().min(1)).optional(),
+    subjectAreas: z.array(z.string().trim().min(1)).optional(),
+    yearFrom: z.coerce.number().int().min(0).max(3000).optional(),
+    yearTo: z.coerce.number().int().min(0).max(3000).optional(),
+  })
+  .default({});
+
 export const searchSchema = z.object({
   query: z.string().trim().min(1, "Query is required").max(2000),
   jurisdiction: z.string().trim().min(2).max(8).default("NG"),
-  filters: z
-    .object({ contentType: contentTypeSchema.optional() })
-    .default({}),
+  filters: searchFiltersSchema,
   limit: z.coerce.number().int().min(1).max(50).default(12),
 });
 

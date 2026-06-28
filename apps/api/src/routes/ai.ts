@@ -8,6 +8,7 @@ import { and, desc, eq, sql } from "drizzle-orm";
 import type { FastifyPluginAsync } from "fastify";
 import { z } from "zod";
 
+import { env } from "../config/env";
 import { aiServiceJson, aiServiceStream } from "../lib/ai-service";
 import { AppError, notFound } from "../lib/errors";
 import { researchSchema, searchSchema } from "../schemas/ai.schemas";
@@ -90,12 +91,21 @@ export const aiRoutes: FastifyPluginAsync = async (app) => {
         throw error;
       }
 
+      // reply.hijack() bypasses Fastify's lifecycle, so @fastify/cors never
+      // runs its onSend hook for this response. Set the CORS headers manually,
+      // mirroring the global config (specific origin + credentials).
       reply.hijack();
+      const requestOrigin = request.headers.origin;
+      const allowOrigin =
+        requestOrigin === env.WEB_ORIGIN ? requestOrigin : env.WEB_ORIGIN;
       reply.raw.writeHead(200, {
         "Content-Type": "text/event-stream",
         "Cache-Control": "no-cache",
         Connection: "keep-alive",
         "X-Accel-Buffering": "no",
+        "Access-Control-Allow-Origin": allowOrigin,
+        "Access-Control-Allow-Credentials": "true",
+        Vary: "Origin",
       });
 
       const reader = aiRes.body!.getReader();
@@ -178,7 +188,14 @@ export const aiRoutes: FastifyPluginAsync = async (app) => {
         return await aiServiceJson("/internal/search", {
           query: body.query,
           jurisdiction: body.jurisdiction,
-          filters: { content_type: body.filters.contentType ?? null },
+          filters: {
+            content_types: body.filters.contentTypes ?? null,
+            courts: body.filters.courts ?? null,
+            jurisdictions: body.filters.jurisdictions ?? null,
+            subject_areas: body.filters.subjectAreas ?? null,
+            year_from: body.filters.yearFrom ?? null,
+            year_to: body.filters.yearTo ?? null,
+          },
           limit: body.limit,
         });
       } catch (error) {

@@ -35,27 +35,37 @@ Health checks: `GET http://localhost:8000/health` and
 
 ## Seed some authorities
 
-The search/research routes need rows in `legal_content`. Ingest a few Nigerian
-authorities via the internal endpoint (requires the service secret):
+The search/research routes need rows in `legal_content`. A seed script ingests
+12 real, citation-verified Nigerian authorities (8 cases + 4 statutes) via the
+internal `/internal/ingest` endpoint, which embeds and stores each record. The
+set deliberately varies `authority_status` so badges and ranking are visible:
+10 `GOOD_LAW`, 1 `DOUBTED` (Mojekwu v. Mojekwu), and 1 `OVERRULED`
+(Lakanmi v. AG Western State, nullified by Decree 28 of 1970).
 
 ```bash
-curl -X POST http://localhost:8000/internal/ingest \
-  -H "Content-Type: application/json" \
-  -H "X-Service-Secret: <AI_SERVICE_SECRET>" \
-  -d '{
-    "content_type": "CASE_LAW",
-    "jurisdiction": "NG",
-    "title": "Bello v. Attorney-General of Oyo State",
-    "citation": "(1986) 5 NWLR (Pt. 45) 828, SC",
-    "court": "Supreme Court",
-    "date": "1986-12-15",
-    "full_text": "The appellant'\''s land at Bodija, Ibadan was compulsorily acquired ...",
-    "source": "seed"
-  }'
+# From apps/ai-service, with the venv active and the service running.
+# Reads AI_SERVICE_SECRET from .env; embeds via OPENAI_API_KEY.
+python seed_data.py
 ```
 
-Repeat for a handful of cases (vary `authority_status`: `GOOD_LAW`,
-`OVERRULED`, `DISTINGUISHED`) so the badges and ranking are visible.
+Expect `Ingested 12/12 records into legal_content.` Re-running appends
+duplicates — `TRUNCATE legal_content;` first if you want a clean reseed.
+
+Quick sanity check of retrieval (ranks Kubor v. Dickson + the Evidence Act
+2011 top):
+
+```bash
+curl -X POST http://localhost:8000/internal/search \
+  -H "Content-Type: application/json" \
+  -H "X-Service-Secret: <AI_SERVICE_SECRET>" \
+  -d '{"query":"admissibility of electronic evidence","jurisdiction":"NG","limit":3}'
+```
+
+To add more authorities, append entries to `RECORDS` in
+`apps/ai-service/seed_data.py`. The ingest endpoint now accepts the full record
+shape: `suit_number`, `subject_area` (string array), `summary`, `ratio`,
+`authority_status`, `source_url`, and an explicit `year` (used when the exact
+decision `date` is unknown).
 
 ## Test flow
 

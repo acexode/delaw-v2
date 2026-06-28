@@ -10,6 +10,7 @@ infrastructure/scripts/indexes.sql.
 
 from __future__ import annotations
 
+from datetime import date as _date
 from typing import Any
 from uuid import UUID
 
@@ -23,8 +24,49 @@ _pool: asyncpg.Pool | None = None
 # Columns returned for every search result (no embedding / full_text payload).
 _RESULT_COLUMNS = """
     id, type, jurisdiction, title, citation, suit_number, court,
-    year, authority_status, source, source_url, summary
+    year, authority_status, source, source_url, summary, subject_area
 """
+
+
+def _filter_clause(
+    params: list[Any],
+    *,
+    jurisdictions: list[str] | None,
+    content_types: list[str] | None,
+    courts: list[str] | None,
+    subject_areas: list[str] | None,
+    year_from: int | None,
+    year_to: int | None,
+) -> str:
+    """Build an ANDed WHERE fragment, appending bind params positionally.
+
+    Each branch grows `params` and references the new `$N`, so the fragment can
+    be spliced into queries that already use leading params (e.g. the embedding
+    or the tsquery text). Returns ``TRUE`` when no filters are supplied.
+    """
+    clauses: list[str] = []
+    if jurisdictions:
+        params.append(jurisdictions)
+        clauses.append(f"jurisdiction = ANY(${len(params)})")
+    if content_types:
+        params.append(content_types)
+        clauses.append(f"type::text = ANY(${len(params)})")
+    if courts:
+        params.append(courts)
+        clauses.append(f"court = ANY(${len(params)})")
+    if subject_areas:
+        params.append(subject_areas)
+        clauses.append(
+            "EXISTS (SELECT 1 FROM unnest(subject_area) AS sa "
+            f"WHERE sa ILIKE ANY(${len(params)}))"
+        )
+    if year_from is not None:
+        params.append(year_from)
+        clauses.append(f"year >= ${len(params)}")
+    if year_to is not None:
+        params.append(year_to)
+        clauses.append(f"year <= ${len(params)}")
+    return " AND ".join(clauses) if clauses else "TRUE"
 
 
 async def _init_connection(conn: asyncpg.Connection) -> None:
@@ -59,29 +101,60 @@ def get_pool() -> asyncpg.Pool:
 
 async def vector_search(
     query_embedding: list[float],
-    jurisdiction: str | None,
-    content_type: str | None,
-    limit: int,
+    *,
+    jurisdictions: list[str] | None = None,
+    content_types: list[str] | None = None,
+    courts: list[str] | None = None,
+    subject_areas: list[str] | None = None,
+    year_from: int | None = None,
+    year_to: int | None = None,
+    limit: int = 12,
 ) -> list[dict[str, Any]]:
+    params: list[Any] = [query_embedding]
+    where = _filter_clause(
+        params,
+        jurisdictions=jurisdictions,
+        content_types=content_types,
+        courts=courts,
+        subject_areas=subject_areas,
+        year_from=year_from,
+        year_to=year_to,
+    )
+    params.append(limit)
     sql = f"""
         SELECT {_RESULT_COLUMNS},
                1 - (embedding <=> $1) AS score
         FROM legal_content
-        WHERE ($2::text IS NULL OR jurisdiction = $2)
-          AND ($3::text IS NULL OR type = $3::content_type)
+        WHERE {where}
         ORDER BY embedding <=> $1
-        LIMIT $4
+        LIMIT ${len(params)}
     """
-    rows = await get_pool().fetch(sql, query_embedding, jurisdiction, content_type, limit)
+    rows = await get_pool().fetch(sql, *params)
     return [dict(row) for row in rows]
 
 
 async def fulltext_search(
     query: str,
-    jurisdiction: str | None,
-    content_type: str | None,
-    limit: int,
+    *,
+    jurisdictions: list[str] | None = None,
+    content_types: list[str] | None = None,
+    courts: list[str] | None = None,
+    subject_areas: list[str] | None = None,
+    year_from: int | None = None,
+    year_to: int | None = None,
+    limit: int = 12,
 ) -> list[dict[str, Any]]:
+    params: list[Any] = [query]
+    where = _filter_clause(
+        params,
+        jurisdictions=jurisdictions,
+        content_types=content_types,
+        courts=courts,
+        subject_areas=subject_areas,
+        year_from=year_from,
+        year_to=year_to,
+    )
+    params.append(limit)
     sql = f"""
         SELECT {_RESULT_COLUMNS},
                ts_rank_cd(
@@ -91,12 +164,11 @@ async def fulltext_search(
         FROM legal_content
         WHERE to_tsvector('english', title || ' ' || full_text)
               @@ websearch_to_tsquery('english', $1)
-          AND ($2::text IS NULL OR jurisdiction = $2)
-          AND ($3::text IS NULL OR type = $3::content_type)
+          AND {where}
         ORDER BY score DESC
-        LIMIT $4
+        LIMIT ${len(params)}
     """
-    rows = await get_pool().fetch(sql, query, jurisdiction, content_type, limit)
+    rows = await get_pool().fetch(sql, *params)
     return [dict(row) for row in rows]
 
 
@@ -106,18 +178,28 @@ async def insert_legal_content(
     jurisdiction: str,
     title: str,
     citation: str | None,
+    suit_number: str | None,
     court: str | None,
     date_decided: str | None,
     year: int | None,
+    subject_area: list[str] | None,
     full_text: str,
+    summary: str | None,
+    ratio: str | None,
+    authority_status: str,
     source: str | None,
+    source_url: str | None,
     embedding: list[float],
 ) -> UUID:
+    # asyncpg binds a `date` column to a datetime.date, not an ISO string.
+    parsed_date = _date.fromisoformat(date_decided) if date_decided else None
     sql = """
         INSERT INTO legal_content
-            (type, jurisdiction, title, citation, court,
-             date_decided, year, full_text, source, embedding)
-        VALUES ($1::content_type, $2, $3, $4, $5, $6::date, $7, $8, $9, $10)
+            (type, jurisdiction, title, citation, suit_number, court,
+             date_decided, year, subject_area, full_text, summary, ratio,
+             authority_status, source, source_url, embedding)
+        VALUES ($1::content_type, $2, $3, $4, $5, $6, $7, $8, $9, $10,
+                $11, $12, $13, $14, $15, $16)
         RETURNING id
     """
     return await get_pool().fetchval(
@@ -126,11 +208,17 @@ async def insert_legal_content(
         jurisdiction,
         title,
         citation,
+        suit_number,
         court,
-        date_decided,
+        parsed_date,
         year,
+        subject_area,
         full_text,
+        summary,
+        ratio,
+        authority_status,
         source,
+        source_url,
         embedding,
     )
 

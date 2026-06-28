@@ -19,7 +19,12 @@ export type AuthorityStatus =
   | "DOUBTED";
 
 export interface SearchFilters {
-  contentType?: ContentType;
+  contentTypes?: ContentType[];
+  courts?: string[];
+  jurisdictions?: string[];
+  subjectAreas?: string[];
+  yearFrom?: number;
+  yearTo?: number;
 }
 
 export interface ResearchRequest {
@@ -51,6 +56,7 @@ export interface SearchResult {
   source: string | null;
   source_url: string | null;
   summary: string | null;
+  subject_area: string[] | null;
   score: number;
   semantic_score: number | null;
   keyword_score: number | null;
