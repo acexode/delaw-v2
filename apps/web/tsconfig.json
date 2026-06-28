@@ -2,6 +2,9 @@
   "extends": "@delaw/config/typescript/nextjs.json",
   "compilerOptions": {
     "baseUrl": ".",
+    // Re-declared from the extended Next.js base so editors that don't resolve
+    // the workspace `extends` package still apply JSX support.
+    "jsx": "preserve",
     "paths": {
       "@/*": ["./*"]
     }

@@ -204,7 +204,7 @@ export default function CaseViewerPage() {
                 {annotations.map((a) => (
                   <div
                     key={a.id}
-                    className="rounded-lg border border-line-default bg-bg-750 p-3"
+                    className="rounded-lg border border-line bg-bg-750 p-3"
                   >
                     <div className="border-l-2 border-gold/50 pl-2 font-serif text-[12.5px] italic text-text-muted">
                       “{a.quote}”
@@ -275,7 +275,7 @@ export default function CaseViewerPage() {
                     {data.subjectArea.map((s) => (
                       <span
                         key={s}
-                        className="rounded border border-line-default bg-bg-750 px-2 py-0.5 text-[11px] text-text-secondary"
+                        className="rounded border border-line bg-bg-750 px-2 py-0.5 text-[11px] text-text-secondary"
                       >
                         {s}
                       </span>
@@ -287,12 +287,12 @@ export default function CaseViewerPage() {
               <div className="mb-2 text-[10.5px] font-semibold uppercase tracking-[0.07em] text-text-faint">
                 Cases cited in this judgment
               </div>
-              <div className="rounded-lg border border-dashed border-line-default bg-bg-750 p-3 text-[11.5px] text-text-faint">
+              <div className="rounded-lg border border-dashed border-line bg-bg-750 p-3 text-[11.5px] text-text-faint">
                 Cited-cases extraction is not yet available for this authority.
               </div>
             </div>
           ) : (
-            <div className="rounded-[11px] border border-line-default bg-bg-750 p-[13px]">
+            <div className="rounded-[11px] border border-line bg-bg-750 p-[13px]">
               <div className="mb-2.5 flex items-center gap-1.5 text-[11px] font-bold tracking-[0.04em] text-success">
                 <Check size={12} strokeWidth={2.5} /> AUTHORITY HEALTH
               </div>
@@ -370,7 +370,7 @@ export default function CaseViewerPage() {
             autoFocus
             onChange={(e) => setDraft({ ...draft, note: e.target.value })}
             placeholder="Add a note about this passage…"
-            className="h-20 w-full resize-none rounded-lg border border-line-default bg-bg-850 p-2.5 text-[12.5px] text-text-body outline-none focus:border-gold"
+            className="h-20 w-full resize-none rounded-lg border border-line bg-bg-850 p-2.5 text-[12.5px] text-text-body outline-none focus:border-gold"
           />
           <div className="mt-2 flex justify-end gap-2">
             <button

@@ -1,24 +1,25 @@
 "use client";
 
-import { ChevronDown, Clock, Search, SlidersHorizontal, Sparkles } from "lucide-react";
+import { Clock, Search, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 
+import { FilterPill } from "@/components/research/filter-pill";
 import { useRecentSearches } from "@/hooks/useResearch";
+import {
+  allChecked,
+  DATE_OPTIONS,
+  FILTER_GROUPS,
+  filterKey,
+  filtersToParams,
+  groupSummary,
+} from "@/lib/research-filters";
 import type { ResearchMode } from "@delaw/types";
 
 const MODES: { id: ResearchMode; label: string }[] = [
   { id: "QUICK", label: "Quick Answer" },
   { id: "DEEP", label: "Deep Research" },
   { id: "CASE_LAW", label: "Case Law Search" },
-];
-
-const FILTER_PILLS = [
-  "Jurisdiction: Nigeria",
-  "Court: All",
-  "Date: 1960–2026",
-  "Legal area",
-  "Source: Case Law",
 ];
 
 // Static until matter-derived suggestions exist (matters API not yet built).
@@ -45,7 +46,17 @@ export default function ResearchHomePage() {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [mode, setMode] = useState<ResearchMode>("QUICK");
+  const [checked, setChecked] = useState<Set<string>>(allChecked);
+  const [dateValue, setDateValue] = useState("");
   const { sessions, loading } = useRecentSearches(5);
+
+  const toggle = (key: string) =>
+    setChecked((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
 
   const submit = (q: string, m: ResearchMode = mode) => {
     const trimmed = q.trim();
@@ -54,6 +65,7 @@ export default function ResearchHomePage() {
       q: trimmed,
       mode: m,
       jurisdiction: "NG",
+      ...filtersToParams(checked, dateValue),
     });
     router.push(`/research/results?${params.toString()}`);
   };
@@ -75,7 +87,7 @@ export default function ResearchHomePage() {
         </div>
 
         <div className="mb-3.5 flex justify-center">
-          <div className="inline-flex rounded-[10px] border border-line-default bg-bg-850 p-[3px]">
+          <div className="inline-flex rounded-[10px] border border-line bg-bg-850 p-[3px]">
             {MODES.map((m) => (
               <button
                 key={m.id}
@@ -120,15 +132,30 @@ export default function ResearchHomePage() {
         </form>
 
         <div className="mt-3 flex flex-wrap justify-center gap-2">
-          {FILTER_PILLS.map((p, i) => (
-            <span
-              key={p}
-              className="inline-flex h-[30px] items-center gap-1.5 rounded border border-line-strong bg-bg-750 px-3 text-[12px] font-medium text-text-secondary"
-            >
-              {i === 0 && <SlidersHorizontal size={13} />}
-              {p}
-              <ChevronDown size={13} className="text-text-faint" />
-            </span>
+          {FILTER_GROUPS.map((g, i) => (
+            <Fragment key={g.label}>
+              <FilterPill
+                label={g.label}
+                summary={groupSummary(g, checked)}
+                options={g.opts}
+                multi
+                leadingIcon={i === 0}
+                isOn={(v) => checked.has(filterKey(g.label, v))}
+                onPick={(v) => toggle(filterKey(g.label, v))}
+              />
+              {g.label === "Court" && (
+                <FilterPill
+                  label="Date"
+                  summary={
+                    DATE_OPTIONS.find((d) => d.value === dateValue)?.label ??
+                    "Any time"
+                  }
+                  options={DATE_OPTIONS}
+                  isOn={(v) => v === dateValue}
+                  onPick={(v) => setDateValue(v)}
+                />
+              )}
+            </Fragment>
           ))}
         </div>
       </div>
@@ -143,11 +170,11 @@ export default function ResearchHomePage() {
               Array.from({ length: 3 }).map((_, i) => (
                 <div
                   key={i}
-                  className="h-[38px] animate-pulse rounded-[10px] border border-line-default bg-bg-750"
+                  className="h-[38px] animate-pulse rounded-[10px] border border-line bg-bg-750"
                 />
               ))
             ) : sessions.length === 0 ? (
-              <div className="rounded-[10px] border border-dashed border-line-default bg-bg-750 px-3 py-4 text-[12px] text-text-muted">
+              <div className="rounded-[10px] border border-dashed border-line bg-bg-750 px-3 py-4 text-[12px] text-text-muted">
                 No recent searches yet. Your research history will appear here.
               </div>
             ) : (
@@ -156,7 +183,7 @@ export default function ResearchHomePage() {
                   key={s.id}
                   type="button"
                   onClick={() => submit(s.query, (s.mode as ResearchMode) ?? "QUICK")}
-                  className="flex items-center gap-2.5 rounded-[10px] border border-line-default bg-bg-750 px-3 py-2.5 text-left hover:border-line-accent"
+                  className="flex items-center gap-2.5 rounded-[10px] border border-line bg-bg-750 px-3 py-2.5 text-left hover:border-line-accent"
                 >
                   <Clock size={14} className="flex-none text-text-faint" />
                   <span className="truncate text-[12.5px] text-text-secondary">
@@ -178,12 +205,12 @@ export default function ResearchHomePage() {
                 key={t.title}
                 type="button"
                 onClick={() => submit(t.title)}
-                className="rounded-[10px] border border-line-default bg-bg-750 px-3 py-2.5 text-left hover:border-gold"
+                className="rounded-[10px] border border-line bg-bg-750 px-3 py-2.5 text-left hover:border-gold"
               >
-                <div className="text-[12.5px] font-medium leading-snug text-text-body">
+                <div className="text-[12.5px] font-medium leading-[1.4] text-text-body">
                   {t.title}
                 </div>
-                <div className="mt-1 text-[11px] text-gold-muted">{t.matter}</div>
+                <div className="mt-[3px] text-[11px] text-gold-muted">{t.matter}</div>
               </button>
             ))}
           </div>

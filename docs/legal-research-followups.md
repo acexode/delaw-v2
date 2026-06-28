@@ -40,15 +40,20 @@ not exist yet. They are tracked here so they are not lost.
   ∈ FOLLOWED|DISTINGUISHED|OVERRULED|CITED), populate it during ingestion, and
   expand `GET /api/v1/ai/legal-content/:id` to aggregate counts + lists.
 
-## 4. Results filters: Court / Date range / Legal area
+## 4. Results filters: Court / Legal area / Source type / Jurisdiction — DONE
 
-- **Where:** research home filter pills + results left filters rail.
-- **Current state:** `Jurisdiction` and `Source type` (→ `content_type`) are
-  wired into search. `Court`, `Date range`, and `Legal area` are display-only.
-- **Blocked on:** the internal search (`/internal/search`) accepts only
-  `jurisdiction` + `content_type` filters today.
-- **To finish:** extend the Python search query + `SearchRequest` filters to
-  accept `court`, `year_from`/`year_to`, and `subject_area`, then wire the rail.
+- **Where:** results left filters rail (`/research/results`).
+- **Current state:** **implemented server-side.** The filter rail is wired into
+  the search request and the internal search query filters by `content_types`,
+  `courts`, `jurisdictions`, `subject_areas`, and `year_from`/`year_to`
+  (`subject_areas` match as substrings, so "Constitutional" matches
+  "Constitutional Law"). A group with all/none of its options ticked imposes no
+  constraint, so the default (all on) returns the full corpus.
+- **Remaining:** there is no UI control for the **date range** yet — the API
+  supports `year_from`/`year_to`, but the prototype rail has no date widget to
+  drive it. Add a year-range control to the rail when desired. The research
+  **home** filter pills are still display-only (the rail on the results page is
+  the functional surface).
 
 ## 5. "Use in document"
 

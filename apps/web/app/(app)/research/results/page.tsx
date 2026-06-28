@@ -15,38 +15,27 @@ import { Suspense, useMemo, useState } from "react";
 
 import { AuthorityBadge } from "@/components/research/authority";
 import { useCase, useResearchStream, useSearch } from "@/hooks/useResearch";
+import {
+  buildFilters,
+  checkedFromParams,
+  dateFromParams,
+  DATE_OPTIONS,
+  FILTER_GROUPS,
+  filterKey,
+} from "@/lib/research-filters";
 import type { ResearchMode, SearchResult } from "@delaw/types";
-
-const FILTER_GROUPS: { label: string; opts: string[]; on: string[] }[] = [
-  {
-    label: "Jurisdiction",
-    opts: ["Nigeria", "Ghana", "Kenya", "South Africa"],
-    on: ["Nigeria"],
-  },
-  {
-    label: "Court",
-    opts: ["Supreme Court", "Court of Appeal", "Federal High Court", "State High Court"],
-    on: ["Supreme Court", "Court of Appeal"],
-  },
-  {
-    label: "Legal area",
-    opts: ["Land Law", "Constitutional", "Commercial"],
-    on: ["Land Law", "Constitutional"],
-  },
-  {
-    label: "Source type",
-    opts: ["Case Law", "Legislation", "Regulations"],
-    on: ["Case Law"],
-  },
-];
 
 function FiltersRail({
   checked,
   toggle,
+  dateValue,
+  setDate,
   onClose,
 }: {
   checked: Set<string>;
   toggle: (key: string) => void;
+  dateValue: string;
+  setDate: (value: string) => void;
   onClose: () => void;
 }) {
   return (
@@ -70,11 +59,11 @@ function FiltersRail({
           </div>
           <div className="flex flex-col gap-2">
             {g.opts.map((o) => {
-              const key = `${g.label}:${o}`;
+              const key = filterKey(g.label, o.value);
               const on = checked.has(key);
               return (
                 <label
-                  key={o}
+                  key={o.value}
                   className="flex cursor-pointer items-center gap-2.5 text-[12.5px] text-text-secondary"
                 >
                   <span
@@ -87,13 +76,42 @@ function FiltersRail({
                   >
                     {on && <Check size={11} strokeWidth={3} />}
                   </span>
-                  {o}
+                  {o.label}
                 </label>
               );
             })}
           </div>
         </div>
       ))}
+
+      <div className="mb-4">
+        <div className="mb-2.5 text-[10px] font-semibold uppercase tracking-[0.07em] text-text-faint">
+          Date
+        </div>
+        <div className="flex flex-col gap-2">
+          {DATE_OPTIONS.map((o) => {
+            const on = dateValue === o.value;
+            return (
+              <label
+                key={o.value}
+                className="flex cursor-pointer items-center gap-2.5 text-[12.5px] text-text-secondary"
+              >
+                <span
+                  onClick={() => setDate(o.value)}
+                  className={`flex h-[17px] w-[17px] flex-none items-center justify-center rounded-full border-[1.5px] ${
+                    on
+                      ? "border-gold bg-gold text-gold-ink"
+                      : "border-line-accent text-transparent"
+                  }`}
+                >
+                  {on && <Check size={11} strokeWidth={3} />}
+                </span>
+                {o.label}
+              </label>
+            );
+          })}
+        </div>
+      </div>
     </aside>
   );
 }
@@ -201,9 +219,11 @@ function ResultsInner() {
   const [filtersOpen, setFiltersOpen] = useState(true);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
-  const [checked, setChecked] = useState<Set<string>>(
-    () => new Set(FILTER_GROUPS.flatMap((g) => g.on.map((o) => `${g.label}:${o}`))),
+  // Seed the rail from the filters the user chose on the research home page.
+  const [checked, setChecked] = useState<Set<string>>(() =>
+    checkedFromParams(params),
   );
+  const [dateValue, setDateValue] = useState<string>(() => dateFromParams(params));
 
   const toggle = (key: string) =>
     setChecked((prev) => {
@@ -223,11 +243,11 @@ function ResultsInner() {
         ? {
             query,
             jurisdiction,
-            filters: mode === "CASE_LAW" ? { contentType: "CASE_LAW" as const } : {},
+            filters: buildFilters(checked, mode, dateValue),
             limit: 12,
           }
         : null,
-    [query, mode, jurisdiction],
+    [query, mode, jurisdiction, checked, dateValue],
   );
 
   const { status, answer, sources, error, retry } = useResearchStream(researchInput);
@@ -272,6 +292,8 @@ function ResultsInner() {
         <FiltersRail
           checked={checked}
           toggle={toggle}
+          dateValue={dateValue}
+          setDate={setDateValue}
           onClose={() => setFiltersOpen(false)}
         />
       )}
@@ -392,7 +414,7 @@ function ResultsInner() {
         </div>
 
         {search.status === "error" ? (
-          <div className="flex flex-col items-start gap-3 rounded-xl border border-line-default bg-bg-700 p-5">
+          <div className="flex flex-col items-start gap-3 rounded-xl border border-line bg-bg-700 p-5">
             <p className="text-[13px] text-text-muted">
               {search.error === "INSUFFICIENT_CREDITS"
                 ? "You have used all of your AI credits for this billing period."
@@ -413,12 +435,12 @@ function ResultsInner() {
             {Array.from({ length: 4 }).map((_, i) => (
               <div
                 key={i}
-                className="h-[110px] animate-pulse rounded-[13px] border border-line-default bg-bg-700"
+                className="h-[110px] animate-pulse rounded-[13px] border border-line bg-bg-700"
               />
             ))}
           </div>
         ) : results.length === 0 ? (
-          <div className="rounded-[13px] border border-dashed border-line-default bg-bg-700 p-8 text-center">
+          <div className="rounded-[13px] border border-dashed border-line bg-bg-700 p-8 text-center">
             <h3 className="font-serif text-base text-text-cream">No authorities found</h3>
             <p className="mt-1 text-[13px] text-text-muted">
               Try rephrasing your query or widening the filters.
@@ -436,7 +458,7 @@ function ResultsInner() {
                   className={`rounded-[13px] px-4 py-3.5 text-left transition ${
                     isSel
                       ? "border-[1.5px] border-gold bg-bg-600"
-                      : "border border-line-default bg-bg-700 hover:border-line-accent"
+                      : "border border-line bg-bg-700 hover:border-line-accent"
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3">
