@@ -25,6 +25,13 @@ const schema = z.object({
   // authenticates with the shared secret over the private network.
   AI_SERVICE_URL: z.string().default("http://localhost:8000"),
   AI_SERVICE_SECRET: z.string().default(""),
+  // Cloudflare R2 — S3-compatible file storage (spec §9.1 / §14.2). Optional in
+  // local dev; the upload route returns a clear error when unconfigured.
+  R2_ACCOUNT_ID: z.string().default(""),
+  R2_ACCESS_KEY_ID: z.string().default(""),
+  R2_SECRET_ACCESS_KEY: z.string().default(""),
+  R2_BUCKET_NAME: z.string().default(""),
+  R2_PUBLIC_URL: z.string().default(""),
 });
 
 const parsed = schema.safeParse(process.env);

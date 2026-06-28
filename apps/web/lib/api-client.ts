@@ -1,5 +1,13 @@
 import type {
   ApiErrorBody,
+  CreateDocumentRequest,
+  CreateFolderRequest,
+  DocumentListResponse,
+  DocumentResponse,
+  DocumentVersionResponse,
+  DocumentVersionsResponse,
+  FolderResponse,
+  FoldersResponse,
   ForgotPasswordRequest,
   LegalContentResponse,
   LoginRequest,
@@ -16,7 +24,10 @@ import type {
   SearchResponse,
   SessionResponse,
   SuccessResponse,
+  TemplatesResponse,
   TotpChallengeRequest,
+  UpdateDocumentRequest,
+  UpdateFolderRequest,
   VerifyEmailRequest,
   VerifyEmailResponse,
 } from "@delaw/types";
@@ -247,6 +258,119 @@ export const researchApi = {
   getCase: (id: string) =>
     request<LegalContentResponse>(`/api/v1/ai/legal-content/${id}`),
 };
+
+interface DocumentListParams {
+  folderId?: string;
+  matterId?: string;
+  type?: string;
+  status?: string;
+  search?: string;
+}
+
+/** Document + folder endpoints (apps/api `/api/v1/documents`, spec §4.4). */
+export const documentsApi = {
+  list: (params: DocumentListParams = {}) => {
+    const qs = new URLSearchParams();
+    for (const [key, value] of Object.entries(params)) {
+      if (value) qs.set(key, value);
+    }
+    const suffix = qs.toString() ? `?${qs.toString()}` : "";
+    return request<DocumentListResponse>(`/api/v1/documents${suffix}`);
+  },
+
+  get: (id: string) => request<DocumentResponse>(`/api/v1/documents/${id}`),
+
+  create: (input: CreateDocumentRequest) =>
+    request<DocumentResponse>("/api/v1/documents", {
+      method: "POST",
+      body: input,
+    }),
+
+  update: (id: string, input: UpdateDocumentRequest) =>
+    request<DocumentResponse>(`/api/v1/documents/${id}`, {
+      method: "PATCH",
+      body: input,
+    }),
+
+  remove: (id: string) =>
+    request<SuccessResponse>(`/api/v1/documents/${id}`, { method: "DELETE" }),
+
+  listVersions: (id: string) =>
+    request<DocumentVersionsResponse>(`/api/v1/documents/${id}/versions`),
+
+  createVersion: (id: string, label?: string) =>
+    request<DocumentVersionResponse>(`/api/v1/documents/${id}/versions`, {
+      method: "POST",
+      body: { label },
+    }),
+
+  templates: (params: { category?: string; source?: string } = {}) => {
+    const qs = new URLSearchParams();
+    if (params.category) qs.set("category", params.category);
+    if (params.source) qs.set("source", params.source);
+    const suffix = qs.toString() ? `?${qs.toString()}` : "";
+    return request<TemplatesResponse>(`/api/v1/documents/templates${suffix}`);
+  },
+
+  upload: (id: string, file: File) => uploadDocumentFile(id, file),
+};
+
+/** Folder endpoints (apps/api `/api/v1/folders`, spec §4.4). */
+export const foldersApi = {
+  list: () => request<FoldersResponse>("/api/v1/folders"),
+
+  create: (input: CreateFolderRequest) =>
+    request<FolderResponse>("/api/v1/folders", { method: "POST", body: input }),
+
+  update: (id: string, input: UpdateFolderRequest) =>
+    request<FolderResponse>(`/api/v1/folders/${id}`, {
+      method: "PATCH",
+      body: input,
+    }),
+
+  remove: (id: string) =>
+    request<SuccessResponse>(`/api/v1/folders/${id}`, { method: "DELETE" }),
+};
+
+/**
+ * Upload a PDF/DOCX to a document (multipart). The shared `request` helper only
+ * sends JSON, so this issues its own fetch with the bearer token and a single
+ * 401 refresh-and-retry, mirroring the rest of the client.
+ */
+async function uploadDocumentFile(
+  id: string,
+  file: File,
+): Promise<DocumentResponse> {
+  const open = async (): Promise<Response> => {
+    const form = new FormData();
+    form.append("file", file);
+    const headers: Record<string, string> = {};
+    const token = getAccessToken();
+    if (token) headers.Authorization = `Bearer ${token}`;
+    return fetch(`${API_BASE}/api/v1/documents/${id}/upload`, {
+      method: "POST",
+      credentials: "include",
+      headers,
+      body: form,
+    });
+  };
+
+  let res = await open();
+  if (res.status === 401) {
+    const refreshed = await refreshSession();
+    if (refreshed) res = await open();
+    else clearTokens();
+  }
+
+  if (!res.ok) {
+    const parsed = (await parseBody(res)) as ApiErrorBody | null;
+    throw new ApiError(
+      res.status,
+      parsed && typeof parsed === "object" ? parsed : null,
+    );
+  }
+  return (await parseBody(res)) as DocumentResponse;
+}
 
 export interface ResearchStreamHandlers {
   onEvent: (event: ResearchStreamEvent) => void;

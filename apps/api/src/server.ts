@@ -3,6 +3,7 @@ import { env } from "./config/env";
 import cookie from "@fastify/cookie";
 import cors from "@fastify/cors";
 import jwt from "@fastify/jwt";
+import multipart from "@fastify/multipart";
 import rateLimit from "@fastify/rate-limit";
 import Fastify, { type FastifyInstance } from "fastify";
 import { ZodError } from "zod";
@@ -11,6 +12,8 @@ import { AppError } from "./lib/errors";
 import { registerTenancy } from "./plugins/tenant";
 import { aiRoutes } from "./routes/ai";
 import { authRoutes } from "./routes/auth";
+import { documentRoutes } from "./routes/documents";
+import { folderRoutes } from "./routes/folders";
 
 export async function buildServer(): Promise<FastifyInstance> {
   const app = Fastify({
@@ -32,6 +35,11 @@ export async function buildServer(): Promise<FastifyInstance> {
 
   // Cookies — refresh token transport (httpOnly, secure, sameSite strict).
   await app.register(cookie);
+
+  // Multipart — document file uploads (PDF/DOCX, 50MB cap). Spec §4.4.
+  await app.register(multipart, {
+    limits: { fileSize: 50 * 1024 * 1024, files: 1 },
+  });
 
   // Rate limiting (spec §8.1). Global default; login is stricter per-route.
   await app.register(rateLimit, {
@@ -90,6 +98,8 @@ export async function buildServer(): Promise<FastifyInstance> {
 
   await app.register(authRoutes, { prefix: "/api/v1/auth" });
   await app.register(aiRoutes, { prefix: "/api/v1/ai" });
+  await app.register(documentRoutes, { prefix: "/api/v1/documents" });
+  await app.register(folderRoutes, { prefix: "/api/v1/folders" });
 
   return app;
 }

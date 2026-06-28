@@ -58,3 +58,104 @@
     color: #5c6678;
   }
 }
+
+/* ---------------------------------------------------------------------------
+ * Document editor (Tiptap / ProseMirror) — legal formatting.
+ * Scoped to .delaw-editor so it never leaks into the rest of the UI. Mirrors
+ * the editor "page" styling in dashboard.dc.html (Source Serif body, gold
+ * citations, court-document spacing) plus legal section numbering + clause
+ * indentation.
+ * ------------------------------------------------------------------------- */
+.delaw-editor .ProseMirror {
+  outline: none;
+  font-family: var(--font-serif), "Source Serif 4", Georgia, serif;
+  font-size: 14px;
+  line-height: 1.75;
+  color: #c7d0e0;
+}
+.delaw-editor .ProseMirror > * + * {
+  margin-top: 14px;
+}
+.delaw-editor .ProseMirror h1 {
+  font-size: 19px;
+  font-weight: 600;
+  color: #f4f1e6;
+  margin: 22px 0 8px;
+  letter-spacing: 0.01em;
+}
+.delaw-editor .ProseMirror h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #f4f1e6;
+  margin: 18px 0 6px;
+}
+.delaw-editor .ProseMirror h3 {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: #edf1fb;
+  margin: 14px 0 4px;
+}
+.delaw-editor .ProseMirror p {
+  margin: 0;
+}
+.delaw-editor .ProseMirror a {
+  color: #c9a84c;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.delaw-editor .ProseMirror mark {
+  background: rgba(201, 168, 76, 0.28);
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+.delaw-editor .ProseMirror blockquote {
+  border-left: 2px solid #c9a84c;
+  margin: 14px 0;
+  padding: 2px 0 2px 16px;
+  color: #b7c0d2;
+}
+.delaw-editor .ProseMirror ul,
+.delaw-editor .ProseMirror ol {
+  padding-left: 26px;
+}
+.delaw-editor .ProseMirror ul {
+  list-style: disc;
+}
+/* Legal section numbering: nested ordered lists render 1. → 1.1 → 1.1.1 */
+.delaw-editor .ProseMirror ol {
+  list-style: none;
+  counter-reset: legal-section;
+}
+.delaw-editor .ProseMirror ol > li {
+  counter-increment: legal-section;
+  position: relative;
+}
+.delaw-editor .ProseMirror ol > li::before {
+  content: counters(legal-section, ".") ".  ";
+  font-weight: 600;
+  color: #f4f1e6;
+}
+.delaw-editor .ProseMirror li {
+  margin: 6px 0;
+}
+.delaw-editor .ProseMirror li > p {
+  display: inline;
+}
+.delaw-editor .ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #5c6678;
+  pointer-events: none;
+  height: 0;
+}
+
+@keyframes delaw-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
