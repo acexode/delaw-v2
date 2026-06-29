@@ -5,6 +5,7 @@ import type {
   DocumentListResponse,
   DocumentResponse,
   DocumentVersionResponse,
+  DocumentVersionDetailResponse,
   DocumentVersionsResponse,
   FolderResponse,
   FoldersResponse,
@@ -297,6 +298,11 @@ export const documentsApi = {
 
   listVersions: (id: string) =>
     request<DocumentVersionsResponse>(`/api/v1/documents/${id}/versions`),
+
+  getVersion: (id: string, versionId: string) =>
+    request<DocumentVersionDetailResponse>(
+      `/api/v1/documents/${id}/versions/${versionId}`,
+    ),
 
   createVersion: (id: string, label?: string) =>
     request<DocumentVersionResponse>(`/api/v1/documents/${id}/versions`, {

@@ -61,6 +61,8 @@ export const createVersionSchema = z.object({
 
 export const documentIdParamSchema = z.object({ id: uuid });
 
+export const versionParamSchema = z.object({ id: uuid, versionId: uuid });
+
 export const templatesQuerySchema = z.object({
   category: z.string().trim().max(80).optional(),
   source: z.enum(["official", "firm", "all"]).default("all"),

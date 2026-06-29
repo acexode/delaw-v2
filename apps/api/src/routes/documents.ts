@@ -30,6 +30,7 @@ import {
   listDocumentsQuerySchema,
   templatesQuerySchema,
   updateDocumentSchema,
+  versionParamSchema,
 } from "../schemas/document.schemas";
 
 const MAX_UPLOAD_BYTES = 50 * 1024 * 1024; // 50MB (task requirement)
@@ -452,6 +453,52 @@ export const documentRoutes: FastifyPluginAsync = async (app) => {
           authorInitials: initials(row.authorName),
           createdAt: row.createdAt,
         })),
+      };
+    },
+  );
+
+  // GET /documents/:id/versions/:versionId — a single snapshot with content,
+  // used to preview and restore an earlier version (spec §4.4).
+  app.get(
+    "/:id/versions/:versionId",
+    { preHandler: [app.authenticate] },
+    async (request) => {
+      const { id, versionId } = versionParamSchema.parse(request.params);
+      await loadDocument(request.orgId, id);
+
+      const [row] = await db
+        .select({
+          id: documentVersions.id,
+          version: documentVersions.version,
+          title: documentVersions.title,
+          content: documentVersions.content,
+          contentHtml: documentVersions.contentHtml,
+          wordCount: documentVersions.wordCount,
+          createdBy: documentVersions.createdBy,
+          authorName: users.fullName,
+          createdAt: documentVersions.createdAt,
+        })
+        .from(documentVersions)
+        .leftJoin(users, eq(documentVersions.createdBy, users.id))
+        .where(
+          and(
+            eq(documentVersions.id, versionId),
+            eq(documentVersions.documentId, id),
+            eq(documentVersions.organisationId, request.orgId),
+            isNull(documentVersions.deletedAt),
+          ),
+        )
+        .limit(1);
+
+      if (!row) {
+        throw notFound("Version not found");
+      }
+
+      return {
+        version: {
+          ...row,
+          authorInitials: initials(row.authorName),
+        },
       };
     },
   );

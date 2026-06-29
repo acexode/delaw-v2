@@ -36,7 +36,12 @@ import { useCallback, useEffect, useState } from "react";
 import { useAutoSave } from "@/hooks/useDocuments";
 import { useResearchStream } from "@/hooks/useResearch";
 import { DOC_STATUSES, DOC_STATUS_META } from "@/lib/documents";
-import type { DocStatus, DocumentDetail, ResearchRequest } from "@delaw/types";
+import type {
+  DocStatus,
+  DocumentDetail,
+  DocumentVersionDetail,
+  ResearchRequest,
+} from "@delaw/types";
 
 import { VersionHistory } from "./version-history";
 
@@ -125,6 +130,33 @@ export function DocumentEditor({ doc }: { doc: DocumentDetail }) {
     setTitle(value);
     save.schedule({ title: value });
   };
+
+  const restoreVersion = useCallback(
+    (version: DocumentVersionDetail) => {
+      if (!editor) return;
+      const html =
+        version.contentHtml ??
+        (version.content
+          ? version.content
+              .split(/\n+/)
+              .map((line) => `<p>${escapeHtml(line)}</p>`)
+              .join("")
+          : "<p></p>");
+      editor.commands.setContent(html, { emitUpdate: true });
+      setTitle(version.title);
+      setWordCount(editor.storage.characterCount.words());
+      refreshHeadings(editor);
+      save.schedule({
+        title: version.title,
+        content: editor.getText(),
+        contentHtml: editor.getHTML(),
+      });
+      void save.saveNow();
+      setHistoryOpen(false);
+      setToast(`Restored v${version.version}`);
+    },
+    [editor, refreshHeadings, save],
+  );
 
   const onStatus = (value: DocStatus) => {
     setStatusValue(value);
@@ -588,6 +620,7 @@ export function DocumentEditor({ doc }: { doc: DocumentDetail }) {
           documentId={doc.id}
           onClose={() => setHistoryOpen(false)}
           onSaved={() => setToast("Version saved")}
+          onRestore={restoreVersion}
         />
       )}
 

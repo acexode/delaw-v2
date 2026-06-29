@@ -70,3 +70,31 @@ not exist yet. They are tracked here so they are not lost.
 - **Blocked on:** matters API + a suggestion source.
 - **To finish:** derive suggestions from the user's active matters once the
   matters API exists.
+
+## 7. Document editor AI quick actions — dedicated Proofread endpoint
+
+- **Where:** document editor right panel ("Ask DeLaw") quick-action chips:
+  "Proofread selection", "Suggest next clause", "Check citations"
+  (`apps/web/components/documents/editor.tsx`).
+- **Current state:** all chips reuse the existing research **stream** endpoint
+  (`/api/v1/ai/research`) with a tailored prompt. This works but is not the
+  spec's purpose-built surface — there is no real proofread/draft/citation-check
+  call, no credit accounting for those actions, and no structured (per-issue)
+  response.
+- **Blocked on:** the dedicated AI proxy + internal endpoints in spec §4.x /
+  schema route list are not implemented yet. Per `delaw-schema.mdc` the routes
+  should be:
+  - Node proxy: `POST /api/v1/ai/proofread`, `/api/v1/ai/draft`,
+    `/api/v1/ai/citation-check`.
+  - Python internal: `POST /internal/proofread`, `/internal/draft`,
+    `/internal/citation-check`.
+  - Credit costs (§10.2): proofread = 2 / 1000 words, draft = 5,
+    citation check = 1.
+- **To finish:**
+  1. Add the Python FastAPI internal handlers (`/internal/proofread` etc.),
+     returning structured suggestions (offset, original, replacement, reason).
+  2. Add the Node proxy routes under `/api/v1/ai/` (auth + credit debit +
+     `AI_SERVICE_SECRET` call), mirroring the existing `ai.ts` research proxy.
+  3. Extend `apps/web/lib/api-client.ts` with `aiApi.proofread/draft/citationCheck`
+     and swap the editor chips off the research stream onto these, rendering
+     inline accept/reject for proofread diffs.

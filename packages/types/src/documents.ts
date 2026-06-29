@@ -106,6 +106,16 @@ export interface DocumentVersionsResponse {
   versions: DocumentVersionSummary[];
 }
 
+/** A single version with its full content (GET .../versions/:versionId). */
+export interface DocumentVersionDetail extends DocumentVersionSummary {
+  content: string | null;
+  contentHtml: string | null;
+}
+
+export interface DocumentVersionDetailResponse {
+  version: DocumentVersionDetail;
+}
+
 export interface DocumentVersionResponse {
   version: DocumentVersionSummary;
 }
